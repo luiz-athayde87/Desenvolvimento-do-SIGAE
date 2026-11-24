@@ -52,3 +52,32 @@ Busca O(1) por ID        Fila de Risco O(log n)      Equidade de Carga O(log n)
                                   ▼
                      [ ÁRVORE RUBRO-NEGRA / AVL ]
                       Histórico em O(log n)
+
+---
+
+### 🧠 Matriz de Decisão e Complexidade Computacional
+
+| Estrutura de Dados | Papel no SIGAE | Complexidade (Médio) | Complexidade (Pior Caso) | Justificativa de Escolha Técnica |
+| :--- | :--- | :---: | :---: | :--- |
+| **Tabela Hash** | Cadastro e Busca por ID | `O(1)` | `O(n)` | Acesso instantâneo sem varredura linear. Trata colisões por encadeamento (*separate chaining*). |
+| **Min-Heap (Pacientes)** | Fila de Prioridade Clínica | `O(1)` topo | `O(log n)` | Mantém o paciente com maior gravidade (menor valor 1–5) na raiz. Desempate por horário (FIFO) e ID. |
+| **Min-Heap (Médicos)** | Balanceamento de Carga Médica | `O(1)` topo | `O(log n)` | Seleciona automaticamente o médico disponível com o **menor número de atendimentos concluídos**. |
+| **Árvore Rubro-Negra** | Histórico Cronológico | `O(log n)` | `O(log n)` | Balanceamento relaxado por cores (Red/Black). Otimizada para inserções frequentes com poucas rotações. |
+| **Árvore AVL** | Índice de Consulta de Alta Frequência | `O(log n)` | `O(log n)` | Balanceamento rígido por Fator de Balanço (`|FB| <= 1`). Garante altura mínima para buscas em tempo recorde. |
+
+---
+
+## 📁 Estrutura do Repositório
+
+```text
+sigae/
+├── main.py                   # Servidor Flask, API REST e Orquestrador
+├── tabela_hash.py            # Implementação da Tabela Hash O(1) com Encadeamento
+├── heap_pacientes.py         # Min-Heap Binário para Fila de Triagem de Risco
+├── heap_medicos.py           # Min-Heap Binário para Equidade de Carga Médica
+├── arvore_rubro_negra.py     # Árvore Rubro-Negra para Histórico Cronológico
+├── arvore_avl.py             # Árvore AVL para Consultas de Leitura Otimizada
+├── templates/
+│   └── index.html            # Interface Gráfica Responsiva + Inspetor Visual de Memória
+├── sigae_flask_project.zip   # Pacote ZIP completo do projeto
+└── README.md                 # Documentação do repositório
