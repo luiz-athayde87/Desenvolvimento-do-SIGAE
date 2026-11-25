@@ -6,9 +6,6 @@ from collections.abc import Iterator
 from typing import Any
 
 
-from typing import Any
-
-
 class TabelaHash:
     """Índice educacional com operações O(1) em média.
 
@@ -24,7 +21,6 @@ class TabelaHash:
         self.tamanho = self._proximo_primo(tamanho_inicial)
         self.tabela: list[list[list[Any]]] = [[] for _ in range(self.tamanho)]
         self.quantidade = 0
-        self.fator_carga_maximo = fator_carga_maximo
 
     @staticmethod
     def _proximo_primo(numero: int) -> int:
@@ -78,11 +74,10 @@ class TabelaHash:
     def remover(self, chave: object) -> bool:
         bucket = self.tabela[self._funcao_hash(chave)]
         for i, item in enumerate(bucket):
-            if item[0] == chave_norm:
+            if item[0] == chave:
                 del bucket[i]
                 self.quantidade -= 1
                 return True
-
         return False
 
     def _redimensionar(self, novo_tamanho: int) -> None:
