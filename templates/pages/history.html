@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block page_actions %}<a class="button secondary" href="/api/v1/reports/shift.csv"><i data-lucide="download"></i>Exportar CSV</a>{% endblock %}
+{% block content %}
+<section class="history-layout"><article class="panel data-panel"><div class="panel-header"><div><span class="panel-kicker">Atendimentos</span><h2>Histórico clínico operacional</h2></div><span class="chip neutral" id="history-total">0 registros</span></div><div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Médico</th><th>Prioridade</th><th>Início</th><th>Duração</th><th>Situação</th></tr></thead><tbody id="history-table"></tbody></table></div><div class="pagination"><button class="button small ghost" id="history-prev">Anterior</button><span id="history-page">Página 1</span><button class="button small ghost" id="history-next">Próxima</button></div></article><aside class="panel audit-panel"><div class="panel-header"><div><span class="panel-kicker">Auditoria</span><h2>Eventos recentes</h2></div></div><div class="audit-list" id="audit-list"></div></aside></section>
+{% endblock %}

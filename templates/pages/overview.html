@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block page_actions %}
+<a class="button secondary" href="/reports"><i data-lucide="file-chart-column"></i>Ver relatórios</a>
+<a class="button primary" href="/patients?new=1"><i data-lucide="user-plus"></i>Novo paciente</a>
+{% endblock %}
+{% block content %}
+<section class="metric-grid" id="overview-metrics">
+  <article class="metric-card blue"><div class="metric-icon"><i data-lucide="users"></i></div><div><span>Pacientes na fila</span><strong data-metric="waiting">—</strong><small><b data-metric="average_wait_minutes">—</b> min de espera média</small></div></article>
+  <article class="metric-card red"><div class="metric-icon"><i data-lucide="siren"></i></div><div><span>Casos críticos</span><strong data-metric="critical">—</strong><small>Prioridades P1 e P2</small></div></article>
+  <article class="metric-card cyan"><div class="metric-icon"><i data-lucide="stethoscope"></i></div><div><span>Médicos disponíveis</span><strong data-metric="available_doctors">—</strong><small>Prontos para atendimento</small></div></article>
+  <article class="metric-card violet"><div class="metric-icon"><i data-lucide="circle-check-big"></i></div><div><span>Atendimentos concluídos</span><strong data-metric="completed">—</strong><small>No histórico do plantão</small></div></article>
+</section>
+
+<section class="overview-grid">
+  <article class="panel flow-panel">
+    <div class="panel-header"><div><span class="panel-kicker">Fluxo operacional</span><h2>Atendimentos em tempo real</h2></div><span class="sync-label"><i data-lucide="refresh-cw"></i><span id="overview-last-sync">Atualizando…</span></span></div>
+    <div class="flow-chart" id="flow-chart" aria-label="Indicadores do fluxo atual"></div>
+  </article>
+  <article class="panel priority-panel">
+    <div class="panel-header"><div><span class="panel-kicker">Classificação</span><h2>Distribuição por prioridade</h2></div><a href="/triage" class="text-link">Abrir triagem <i data-lucide="arrow-up-right"></i></a></div>
+    <div class="priority-summary"><div class="donut" id="priority-donut"><span><strong id="donut-total">0</strong><small>pacientes</small></span></div><div class="legend-list" id="priority-legend"></div></div>
+  </article>
+</section>
+
+<section class="overview-grid lower">
+  <article class="panel queue-preview">
+    <div class="panel-header"><div><span class="panel-kicker">Próximos da vez</span><h2>Fila prioritária</h2></div><a href="/queue" class="button small secondary">Ver fila completa</a></div>
+    <div class="table-wrap"><table><thead><tr><th>Posição</th><th>Paciente</th><th>Prioridade</th><th>Chegada</th><th>Espera</th></tr></thead><tbody id="overview-queue"></tbody></table></div>
+  </article>
+  <article class="panel team-preview">
+    <div class="panel-header"><div><span class="panel-kicker">Equipe</span><h2>Disponibilidade médica</h2></div><a href="/doctors" class="text-link">Gerenciar</a></div>
+    <div class="team-list" id="overview-doctors"></div>
+  </article>
+</section>
+{% endblock %}
