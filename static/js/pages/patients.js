@@ -5,6 +5,10 @@ let page = 1;
 let pages = 1;
 
 function applyPrioritySelectStyle(select) {
+  Array.from(select.options).forEach((option) => {
+    const priority = Number(option.value);
+    if (priority >= 1 && priority <= 5) option.classList.add("risk-option", `p${priority}`);
+  });
   select.classList.remove("risk-p1", "risk-p2", "risk-p3", "risk-p4", "risk-p5");
   select.classList.add(`risk-p${select.value}`);
 }
