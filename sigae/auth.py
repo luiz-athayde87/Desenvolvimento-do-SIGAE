@@ -92,10 +92,16 @@ def logout():
 @auth_bp.get("/me")
 def me():
     if not session.get("user_id"):
-        return jsonify({"authenticated": False})
+        return jsonify(
+            {
+                "authenticated": False,
+                "auth_required": current_app.config["AUTH_REQUIRED"],
+            }
+        )
     return jsonify(
         {
             "authenticated": True,
+            "auth_required": current_app.config["AUTH_REQUIRED"],
             "user": {"username": session["username"], "role": session["role"]},
             "csrf_token": session["csrf_token"],
         }

@@ -13,12 +13,14 @@ def test_health_state_and_security_headers(client) -> None:
 
     assert health.status_code == 200
     assert payload(health)["status"] == "healthy"
+    assert payload(health)["database"] == "ready"
     assert state.status_code == 200
     assert len(payload(state)["waiting_queue"]) == 5
     assert len(payload(state)["doctors"]) == 3
     assert state.headers["X-Content-Type-Options"] == "nosniff"
     assert state.headers["Cache-Control"] == "no-store"
     assert state.headers["X-Request-ID"]
+    assert state.headers["Server-Timing"].startswith("app;dur=")
 
 
 def test_patient_validation_and_duplicate_conflict(client) -> None:
@@ -88,22 +90,34 @@ def test_authentication_roles_and_csrf() -> None:
             "DEMO_PASSWORD": "senha-segura",
         }
     )
-    client = app.test_client()
+    try:
+        client = app.test_client()
 
-    denied = client.post("/api/v1/patients", json={"nome": "Teste", "prioridade": 3})
-    login = client.post(
-        "/api/v1/auth/login", json={"username": "operador", "password": "senha-segura"}
-    )
-    token = login.get_json()["csrf_token"]
-    allowed = client.post(
-        "/api/v1/patients",
-        json={"nome": "Teste Autenticado", "prioridade": 3},
-        headers={"X-CSRF-Token": token},
-    )
+        session_before = client.get("/api/v1/auth/me")
+        denied = client.post("/api/v1/patients", json={"nome": "Teste", "prioridade": 3})
+        login = client.post(
+            "/api/v1/auth/login", json={"username": "operador", "password": "senha-segura"}
+        )
+        token = login.get_json()["csrf_token"]
+        allowed = client.post(
+            "/api/v1/patients",
+            json={"nome": "Teste Autenticado", "prioridade": 3},
+            headers={"X-CSRF-Token": token},
+        )
 
-    assert denied.status_code == 401
-    assert login.status_code == 200
-    assert allowed.status_code == 201
+        assert denied.status_code == 401
+        assert session_before.get_json() == {
+            "authenticated": False,
+            "auth_required": True,
+        }
+        assert login.status_code == 200
+        assert allowed.status_code == 201
+
+        session_after = client.get("/api/v1/auth/me").get_json()
+        assert session_after["authenticated"] is True
+        assert session_after["user"]["role"] == "administrador"
+    finally:
+        app.extensions["sigae_database"].close()
 
 
 def test_legacy_routes_remain_available(client) -> None:
@@ -114,3 +128,20 @@ def test_legacy_routes_remain_available(client) -> None:
     assert "heap_pacientes" in state.get_json()
     assert search.status_code == 200
     assert search.get_json()["encontrado"] is True
+
+
+def test_api_errors_and_empty_operational_states(client) -> None:
+    invalid_body = client.post(
+        "/api/v1/patients", data="[]", content_type="application/json"
+    )
+    assert invalid_body.status_code == 400
+    assert client.get("/api/v1/search?q=x").status_code == 400
+    assert client.get("/api/v1/patients/P999").status_code == 404
+    assert client.get("/api/v1/route-that-does-not-exist").status_code == 404
+
+    for identifier in ("P02", "P03", "P04", "P01", "P05"):
+        assert client.post(f"/api/v1/patients/{identifier}/cancel").status_code == 200
+    empty_queue = client.post("/api/v1/attendances/call-next")
+
+    assert empty_queue.status_code == 422
+    assert empty_queue.get_json()["error"]["code"] == "domain_error"

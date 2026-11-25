@@ -114,6 +114,12 @@ class Database:
         with self.connection() as connection:
             connection.executescript(SCHEMA)
 
+    def close(self) -> None:
+        """Encerra a conexão compartilhada usada por bancos em memória."""
+        if self._memory_connection is not None:
+            self._memory_connection.close()
+            self._memory_connection = None
+
     def audit(
         self,
         connection: sqlite3.Connection,

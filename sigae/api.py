@@ -25,7 +25,17 @@ def success(data: Any, status: int = 200):
 
 @api_bp.get("/health")
 def health():
-    return success({"status": "healthy", "service": "sigae", "version": "1.0.0"})
+    database = current_app.extensions["sigae_database"]
+    with database.connection() as connection:
+        connection.execute("SELECT 1").fetchone()
+    return success(
+        {
+            "status": "healthy",
+            "service": "sigae",
+            "version": "1.0.0",
+            "database": "ready",
+        }
+    )
 
 
 @api_bp.get("/state")

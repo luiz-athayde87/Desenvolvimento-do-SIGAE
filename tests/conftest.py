@@ -7,7 +7,7 @@ from sigae import create_app
 
 @pytest.fixture()
 def app():
-    return create_app(
+    application = create_app(
         {
             "TESTING": True,
             "DATABASE": ":memory:",
@@ -17,6 +17,8 @@ def app():
             "DEMO_PASSWORD": "senha-segura",
         }
     )
+    yield application
+    application.extensions["sigae_database"].close()
 
 
 @pytest.fixture()
