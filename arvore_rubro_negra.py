@@ -1,13 +1,15 @@
-"""
-Módulo: Árvore Rubro-Negra (SIGAE)
-Objetivo: Armazenar histórico de atendimentos com garantia de busca e inserção em O(log n).
-"""
+"""Árvore Rubro-Negra para o histórico cronológico do SIGAE."""
+
+from __future__ import annotations
+
+from typing import Any
 
 VERMELHO = True
 PRETO = False
 
+
 class NoRN:
-    def __init__(self, chave, valor, cor=VERMELHO):
+    def __init__(self, chave: Any, valor: Any, cor: bool = VERMELHO) -> None:
         self.chave = chave  # Horario / Timestamp ou ID
         self.valor = valor  # Dados do atendimento
         self.cor = cor
@@ -15,9 +17,12 @@ class NoRN:
         self.dir = None
         self.pai = None
 
+
 class ArvoreRubroNegra:
-    def __init__(self):
+    def __init__(self) -> None:
         self.NIL = NoRN(chave=None, valor=None, cor=PRETO)
+        self.NIL.esq = self.NIL
+        self.NIL.dir = self.NIL
         self.raiz = self.NIL
 
     def _rotacionar_esquerda(self, x):
@@ -54,17 +59,14 @@ class ArvoreRubroNegra:
         novo = NoRN(chave, valor, cor=VERMELHO)
         novo.esq = self.NIL
         novo.dir = self.NIL
-        
+
         y = None
         x = self.raiz
-        
+
         while x != self.NIL:
             y = x
-            if novo.chave < x.chave:
-                x = x.esq
-            else:
-                x = x.dir
-                
+            x = x.esq if novo.chave < x.chave else x.dir
+
         novo.pai = y
         if y is None:
             self.raiz = novo
@@ -81,6 +83,14 @@ class ArvoreRubroNegra:
             return
 
         self._ajustar_insercao(novo)
+
+    def buscar(self, chave: Any) -> Any | None:
+        atual = self.raiz
+        while atual != self.NIL:
+            if chave == atual.chave:
+                return atual.valor
+            atual = atual.esq if chave < atual.chave else atual.dir
+        return None
 
     def _ajustar_insercao(self, k):
         while k.pai and k.pai.cor == VERMELHO:
@@ -122,6 +132,41 @@ class ArvoreRubroNegra:
             no = self.raiz
         if no != self.NIL:
             self.em_ordem(no.esq, resultado)
-            resultado.append({"chave": no.chave, "valor": no.valor, "cor": "VERMELHO" if no.cor == VERMELHO else "PRETO"})
+            resultado.append(
+                {
+                    "chave": no.chave,
+                    "valor": no.valor,
+                    "cor": "VERMELHO" if no.cor == VERMELHO else "PRETO",
+                }
+            )
             self.em_ordem(no.dir, resultado)
         return resultado
+
+    def validar_propriedades(self) -> dict[str, Any]:
+        """Valida ordenação, raiz preta, nós vermelhos e altura negra."""
+        if self.raiz == self.NIL:
+            return {"ok": True, "altura_negra": 1, "erros": []}
+
+        erros: list[str] = []
+        if self.raiz.cor != PRETO:
+            erros.append("A raiz deve ser preta.")
+
+        chaves: list[Any] = []
+
+        def visitar(no: NoRN) -> int:
+            if no == self.NIL:
+                return 1
+            chaves.append(no.chave)
+            if no.cor == VERMELHO and (no.esq.cor == VERMELHO or no.dir.cor == VERMELHO):
+                erros.append(f"Nó vermelho {no.chave!r} possui filho vermelho.")
+            altura_esquerda = visitar(no.esq)
+            altura_direita = visitar(no.dir)
+            if altura_esquerda != altura_direita:
+                erros.append(f"Altura negra divergente no nó {no.chave!r}.")
+            return min(altura_esquerda, altura_direita) + (1 if no.cor == PRETO else 0)
+
+        altura_negra = visitar(self.raiz)
+        ordenadas = [item["chave"] for item in self.em_ordem()]
+        if ordenadas != sorted(ordenadas):
+            erros.append("A propriedade de busca binária foi violada.")
+        return {"ok": not erros, "altura_negra": altura_negra, "erros": erros}

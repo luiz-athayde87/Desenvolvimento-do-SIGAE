@@ -1,0 +1,18 @@
+services:
+  sigae:
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    environment:
+      SIGAE_ENV: production
+      SIGAE_SECRET_KEY: ${SIGAE_SECRET_KEY:?defina SIGAE_SECRET_KEY no arquivo .env}
+      SIGAE_AUTH_REQUIRED: "true"
+      SIGAE_DEMO_USER: ${SIGAE_DEMO_USER:-operador}
+      SIGAE_DEMO_PASSWORD: ${SIGAE_DEMO_PASSWORD:?defina SIGAE_DEMO_PASSWORD no arquivo .env}
+    volumes:
+      - sigae-data:/app/instance
+    restart: unless-stopped
+
+volumes:
+  sigae-data:

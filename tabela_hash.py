@@ -1,111 +1,102 @@
-"""
-Módulo: Tabela Hash (SIGAE)
-Objetivo: Armazenamento, busca e remoção de cadastros por ID.
-Colisões: Encadeamento separado.
-Complexidade: O(1) médio para busca, inserção e remoção.
-"""
+"""Tabela Hash determinística com encadeamento separado e redimensionamento."""
 
+from __future__ import annotations
+
+from collections.abc import Iterator
 from typing import Any
 
 
 class TabelaHash:
-    def __init__(self, tamanho_inicial: int = 16, fator_carga_maximo: float = 0.75):
-        if tamanho_inicial < 1:
-            raise ValueError("O tamanho inicial deve ser positivo.")
-        if not 0 < fator_carga_maximo <= 1:
-            raise ValueError("Fator de carga deve estar entre 0 e 1.")
+    """Índice educacional com operações O(1) em média.
 
-        self.tamanho = tamanho_inicial
+    A função de dispersão FNV-1a é determinística entre processos, permitindo
+    que o inspetor visual apresente os mesmos buckets após uma reinicialização.
+    """
+
+    FATOR_CARGA_MAXIMO = 0.75
+
+    def __init__(self, tamanho_inicial: int = 16) -> None:
+        if tamanho_inicial < 4:
+            raise ValueError("O tamanho inicial deve ser pelo menos 4.")
+        self.tamanho = self._proximo_primo(tamanho_inicial)
         self.tabela: list[list[list[Any]]] = [[] for _ in range(self.tamanho)]
         self.quantidade = 0
-        self.fator_carga_maximo = fator_carga_maximo
 
-    def _normalizar_chave(self, chave: Any) -> str:
-        if chave is None:
-            raise ValueError("A chave não pode ser vazia.")
+    @staticmethod
+    def _proximo_primo(numero: int) -> int:
+        def primo(valor: int) -> bool:
+            if valor < 2:
+                return False
+            divisor = 2
+            while divisor * divisor <= valor:
+                if valor % divisor == 0:
+                    return False
+                divisor += 1
+            return True
 
-        chave_normalizada = str(chave).strip()
-        if not chave_normalizada:
-            raise ValueError("A chave não pode ser vazia.")
+        candidato = numero
+        while not primo(candidato):
+            candidato += 1
+        return candidato
 
-        return chave_normalizada
+    def _funcao_hash(self, chave: object) -> int:
+        hash_atual = 2_166_136_261
+        for byte in str(chave).encode("utf-8"):
+            hash_atual ^= byte
+            hash_atual = (hash_atual * 16_777_619) & 0xFFFFFFFF
+        return hash_atual % self.tamanho
 
-    def _indice_para_chave_normalizada(self, chave_normalizada: str) -> int:
-        return hash(chave_normalizada) % self.tamanho
-
-    def _fator_carga(self) -> float:
+    @property
+    def fator_carga(self) -> float:
         return self.quantidade / self.tamanho
 
-    def _redimensionar(self) -> None:
-        tabela_antiga = self.tabela
-        self.tamanho *= 2
-        self.tabela = [[] for _ in range(self.tamanho)]
-
-        for bucket in tabela_antiga:
-            for chave, valor in bucket:
-                indice = self._indice_para_chave_normalizada(chave)
-                self.tabela[indice].append([chave, valor])
-
-    def inserir(self, chave: Any, valor: Any) -> bool:
-        chave_norm = self._normalizar_chave(chave)
-        indice = self._indice_para_chave_normalizada(chave_norm)
+    def inserir(self, chave: object, valor: Any) -> bool:
+        """Insere ou atualiza uma chave; retorna ``True`` apenas se for nova."""
+        indice = self._funcao_hash(chave)
         bucket = self.tabela[indice]
+        for i, item in enumerate(bucket):
+            if item[0] == chave:
+                bucket[i] = [chave, valor]
+                return False
 
-        for item in bucket:
-            if item[0] == chave_norm:
-                item[1] = valor
-                return True
-
-        bucket.append([chave_norm, valor])
+        bucket.append([chave, valor])
         self.quantidade += 1
-
-        if self._fator_carga() > self.fator_carga_maximo:
-            self._redimensionar()
-
+        if self.fator_carga >= self.FATOR_CARGA_MAXIMO:
+            self._redimensionar(self._proximo_primo(self.tamanho * 2))
         return True
 
-    def buscar(self, chave: Any) -> Any | None:
-        chave_norm = self._normalizar_chave(chave)
-        indice = self._indice_para_chave_normalizada(chave_norm)
-
-        for item in self.tabela[indice]:
-            if item[0] == chave_norm:
-                return item[1]
-
+    def buscar(self, chave: object) -> Any | None:
+        for chave_atual, valor in self.tabela[self._funcao_hash(chave)]:
+            if chave_atual == chave:
+                return valor
         return None
 
-    def existe(self, chave: Any) -> bool:
-        chave_norm = self._normalizar_chave(chave)
-        indice = self._indice_para_chave_normalizada(chave_norm)
-        return any(item[0] == chave_norm for item in self.tabela[indice])
-
-    def remover(self, chave: Any) -> bool:
-        chave_norm = self._normalizar_chave(chave)
-        indice = self._indice_para_chave_normalizada(chave_norm)
-        bucket = self.tabela[indice]
-
+    def remover(self, chave: object) -> bool:
+        bucket = self.tabela[self._funcao_hash(chave)]
         for i, item in enumerate(bucket):
-            if item[0] == chave_norm:
+            if item[0] == chave:
                 del bucket[i]
                 self.quantidade -= 1
                 return True
-
         return False
 
-    def obter_quantidade(self) -> int:
-        return self.quantidade
+    def _redimensionar(self, novo_tamanho: int) -> None:
+        itens = list(self.itens())
+        self.tamanho = novo_tamanho
+        self.tabela = [[] for _ in range(self.tamanho)]
+        self.quantidade = 0
+        for chave, valor in itens:
+            self.inserir(chave, valor)
+
+    def itens(self) -> Iterator[tuple[object, Any]]:
+        for bucket in self.tabela:
+            yield from bucket
 
     def exportar_buckets(self) -> list[dict[str, Any]]:
         return [
             {
-                "bucket_id": idx,
+                "bucket_id": indice,
                 "itens": [{"chave": chave, "valor": valor} for chave, valor in bucket],
             }
-            for idx, bucket in enumerate(self.tabela)
+            for indice, bucket in enumerate(self.tabela)
         ]
-
-    def __len__(self) -> int:
-        return self.quantidade
-
-    def __contains__(self, chave: Any) -> bool:
-        return self.existe(chave)
