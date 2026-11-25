@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do projeto são documentadas neste arquivo.
 
+## [Não lançado]
+
+### Adicionado
+
+- identificação visual P1–P5 no cadastro de pacientes, com cores clínicas distintas em cada opção;
+- atualização dinâmica do campo de prioridade conforme o nível de risco selecionado.
+
 ## [1.2.0] - 2026-11-25
 
 ### Adicionado

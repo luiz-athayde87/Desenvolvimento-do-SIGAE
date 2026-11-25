@@ -35,7 +35,7 @@ O sistema cobre o ciclo completo do atendimento: cadastro, triagem, priorizaçã
 | Pilar | Implementação |
 |---|---|
 | **Operação clara** | Páginas focadas para visão geral, pacientes, triagem, fila, médicos, histórico, relatórios e configurações |
-| **Priorização inteligente** | Classificação P1–P5 com Min-Heap, desempate FIFO e reclassificação de risco |
+| **Priorização inteligente** | Classificação P1–P5 com Min-Heap, desempate FIFO, reclassificação e identificação visual por cores clínicas |
 | **Distribuição médica** | Seleção do profissional disponível com menor carga assistencial |
 | **Dados consistentes** | SQLite como fonte persistente, transações e reconstrução segura dos índices em memória |
 | **Rastreabilidade** | Histórico, trilha de auditoria, IDs de requisição e métricas de tempo de resposta |
@@ -47,6 +47,7 @@ O sistema cobre o ciclo completo do atendimento: cadastro, triagem, priorizaçã
 
 - dashboard com indicadores de fila, emergências, médicos disponíveis e atendimentos;
 - cadastro, busca, filtros, paginação e acompanhamento de pacientes;
+- seletor de prioridade P1–P5 com cores clínicas e atualização visual dinâmica no cadastro;
 - triagem e reclassificação entre os níveis P1 e P5;
 - chamada do próximo paciente conforme prioridade clínica e ordem de chegada;
 - início, conclusão e cancelamento de atendimentos;
