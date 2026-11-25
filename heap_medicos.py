@@ -1,45 +1,80 @@
-"""
-Módulo: Min-Heap de Médicos (SIGAE)
-Objetivo: Distribuição equitativa de consultas entre profissionais disponíveis.
-Complexidade: O(1) para seleção do topo, O(log n) para atualização de carga.
-"""
+"""Min-Heap de médicos disponíveis com operações O(log n)."""
+
+from __future__ import annotations
+
+from typing import Any
+
 
 class MinHeapMedicos:
-    def __init__(self):
-        self.heap = []
+    def __init__(self) -> None:
+        self.heap: list[dict[str, Any]] = []
+        self._ids: set[str] = set()
 
-    def _carga_menor(self, m1, m2):
+    def _carga_menor(self, m1: dict[str, Any], m2: dict[str, Any]) -> bool:
         # Desempate: 1º Menor número de atendimentos, 2º Tempo sem atender, 3º ID
-        return (int(m1['atendimentos_concluidos']), float(m1['ultimo_atendimento']), str(m1['id'])) < \
-               (int(m2['atendimentos_concluidos']), float(m2['ultimo_atendimento']), str(m2['id']))
+        chave_m1 = (
+            int(m1["atendimentos_concluidos"]),
+            float(m1["ultimo_atendimento"]),
+            str(m1["id"]),
+        )
+        chave_m2 = (
+            int(m2["atendimentos_concluidos"]),
+            float(m2["ultimo_atendimento"]),
+            str(m2["id"]),
+        )
+        return chave_m1 < chave_m2
 
-    def inserir(self, medico):
+    def inserir(self, medico: dict[str, Any]) -> None:
+        identificador = str(medico["id"])
+        if medico.get("situacao") != "Disponivel":
+            raise ValueError("Apenas médicos disponíveis podem entrar no heap.")
+        if identificador in self._ids:
+            raise ValueError(f"Médico {identificador} já está disponível no heap.")
         self.heap.append(medico)
-        self._reordenar()
+        self._ids.add(identificador)
+        self._subir(len(self.heap) - 1)
 
-    def obter_medico_disponivel(self):
-        for i, medico in enumerate(self.heap):
-            if medico['situacao'] == 'Disponivel':
-                medico_selecionado = self.heap.pop(i)
-                self._reordenar()
-                return medico_selecionado
-        return None
+    def topo(self) -> dict[str, Any] | None:
+        return self.heap[0] if self.heap else None
 
-    def _reordenar(self):
-        for i in range(len(self.heap) // 2, -1, -1):
-            self._descer(i)
+    def obter_medico_disponivel(self) -> dict[str, Any] | None:
+        if not self.heap:
+            return None
+        if len(self.heap) == 1:
+            medico = self.heap.pop()
+            self._ids.remove(str(medico["id"]))
+            return medico
+        medico = self.heap[0]
+        ultimo = self.heap.pop()
+        self._ids.remove(str(medico["id"]))
+        self.heap[0] = ultimo
+        self._descer(0)
+        return medico
 
-    def _descer(self, i):
-        menor = i
-        esq, dir = 2 * i + 1, 2 * i + 2
-        
-        if esq < len(self.heap) and self._carga_menor(self.heap[esq], self.heap[menor]):
-            menor = esq
-        if dir < len(self.heap) and self._carga_menor(self.heap[dir], self.heap[menor]):
-            menor = dir
-        if menor != i:
-            self.heap[i], self.heap[menor] = self.heap[menor], self.heap[i]
-            self._descer(menor)
+    extrair_proximo = obter_medico_disponivel
 
-    def exportar_array(self):
+    def _subir(self, indice: int) -> None:
+        while indice > 0:
+            pai = (indice - 1) // 2
+            if not self._carga_menor(self.heap[indice], self.heap[pai]):
+                return
+            self.heap[indice], self.heap[pai] = self.heap[pai], self.heap[indice]
+            indice = pai
+
+    def _descer(self, indice: int) -> None:
+        while True:
+            menor = indice
+            esquerda, direita = 2 * indice + 1, 2 * indice + 2
+            if esquerda < len(self.heap) and self._carga_menor(
+                self.heap[esquerda], self.heap[menor]
+            ):
+                menor = esquerda
+            if direita < len(self.heap) and self._carga_menor(self.heap[direita], self.heap[menor]):
+                menor = direita
+            if menor == indice:
+                return
+            self.heap[indice], self.heap[menor] = self.heap[menor], self.heap[indice]
+            indice = menor
+
+    def exportar_array(self) -> list[dict[str, Any]]:
         return list(self.heap)
