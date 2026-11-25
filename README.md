@@ -18,13 +18,15 @@ Simulador full stack de triagem, fila clínica, distribuição de médicos e aud
 
 ## Visão geral
 
-O SIGAE demonstra um fluxo hospitalar completo em uma interface responsiva: cadastro e reclassificação de pacientes, chamada por prioridade, balanceamento da carga médica, encerramento ou cancelamento do atendimento, pesquisa global, relatório CSV e inspeção visual das estruturas de dados.
+O SIGAE demonstra um fluxo hospitalar completo em uma interface responsiva: cadastro e reclassificação de pacientes, chamada por prioridade, balanceamento da carga médica, encerramento ou cancelamento do atendimento, pesquisa global, relatório CSV e inspeção visual das estruturas de dados. Cada área operacional possui sua própria rota e mostra apenas as informações necessárias àquela tarefa.
 
 O backend Flask é a fonte única de verdade. O estado operacional é persistido em SQLite, exposto por uma API REST versionada e reconstruído em estruturas de dados implementadas no próprio projeto.
 
 ### Destaques
 
-- dashboard moderno, responsivo e acessível;
+- painel modular com Visão geral, Pacientes, Triagem, Fila, Corpo médico, Histórico, Relatórios, Estruturas e Configurações em páginas independentes;
+- relógio real do dispositivo, timestamps UTC reais e atualização automática dos dados operacionais;
+- interface moderna, responsiva, acessível e otimizada para tarefas;
 - classificação de risco P1–P5, com desempate FIFO;
 - Min-Heaps de pacientes e médicos com operações `O(log n)`;
 - Tabela Hash determinística, com encadeamento e redimensionamento;
@@ -33,8 +35,9 @@ O backend Flask é a fonte única de verdade. O estado operacional é persistido
 - autenticação por sessão, papéis de acesso e proteção CSRF opcionais;
 - cabeçalhos de segurança, IDs de requisição e `Server-Timing`;
 - API `/api/v1`, exportação CSV e compatibilidade temporária com a API antiga;
-- testes automatizados com cobertura mínima de 85%;
-- CI, Docker, healthcheck e servidor Waitress para produção.
+- migrações versionadas de banco, paginação, filtros e gestão de usuários;
+- testes unitários, de integração e de jornada no Chromium, com cobertura mínima de 85%;
+- CI, CodeQL, auditoria de dependências, Docker, healthcheck e servidor Waitress para produção.
 
 ## Executar localmente
 
@@ -107,17 +110,22 @@ Detalhes estão em [docs/architecture.md](docs/architecture.md), e o contrato HT
 ```bash
 python -m ruff check .
 python -m pytest --cov --cov-report=term-missing
+python -m pip install -r requirements-e2e.txt
+python -m playwright install chromium
+python -m pytest e2e --browser chromium
 ```
 
-A automação em `.github/workflows/ci.yml` executa lint e testes em três versões do Python. Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de contribuir e [SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
+As automações executam lint, validação do JavaScript, testes em três versões do Python, jornadas reais no Chromium, CodeQL e auditoria de dependências. Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de contribuir e [SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
 
 ## Estrutura principal
 
 ```text
 .
 ├── sigae/                 # aplicação, API, domínio, autenticação e persistência
-├── templates/             # dashboard web
+├── templates/             # shell e páginas independentes do painel
+├── static/                # design system e JavaScript modular por página
 ├── tests/                 # testes de API, domínio e estruturas
+├── e2e/                   # jornadas críticas executadas no Chromium
 ├── docs/                  # arquitetura e contrato HTTP
 ├── *.py                   # estruturas de dados implementadas do zero
 ├── Dockerfile             # imagem de produção

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SIGAE — gestão inteligente de atendimentos de emergência">
+  <title>{{ page_title }} · SIGAE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script type="module" src="{{ url_for('static', filename='js/core.js') }}"></script>
+</head>
+<body data-page="{{ active_page }}">
+  <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+      <a class="brand" href="/" aria-label="SIGAE — página inicial">
+        <span class="brand-mark"><i data-lucide="activity"></i></span>
+        <span><strong>SIGAE</strong><small>Gestão de emergências</small></span>
+      </a>
+
+      <nav class="main-nav">
+        <p class="nav-label">Operação</p>
+        <a class="nav-link {{ 'is-active' if active_page == 'overview' }}" href="/"><i data-lucide="layout-dashboard"></i><span>Visão geral</span></a>
+        <a class="nav-link {{ 'is-active' if active_page == 'patients' }}" href="/patients"><i data-lucide="users"></i><span>Pacientes</span></a>
+        <a class="nav-link {{ 'is-active' if active_page == 'triage' }}" href="/triage"><i data-lucide="heart-pulse"></i><span>Triagem de risco</span></a>
+        <a class="nav-link {{ 'is-active' if active_page == 'queue' }}" href="/queue"><i data-lucide="list-ordered"></i><span>Fila de atendimento</span><span class="nav-count" id="nav-queue-count">0</span></a>
+
+        <p class="nav-label">Gestão</p>
+        <a class="nav-link {{ 'is-active' if active_page == 'doctors' }}" href="/doctors"><i data-lucide="stethoscope"></i><span>Corpo médico</span></a>
+        <a class="nav-link {{ 'is-active' if active_page == 'history' }}" href="/history"><i data-lucide="history"></i><span>Histórico</span></a>
+        <a class="nav-link {{ 'is-active' if active_page == 'reports' }}" href="/reports"><i data-lucide="chart-no-axes-combined"></i><span>Relatórios</span></a>
+
+        <p class="nav-label">Tecnologia</p>
+        <a class="nav-link {{ 'is-active' if active_page == 'structures' }}" href="/structures"><i data-lucide="network"></i><span>Estruturas</span></a>
+        <a class="nav-link {{ 'is-active' if active_page == 'settings' }}" href="/settings"><i data-lucide="settings"></i><span>Configurações</span></a>
+      </nav>
+
+      <div class="system-card">
+        <span class="status-dot"></span>
+        <div><strong>Sistema operacional</strong><small id="sidebar-sync">Sincronizando dados…</small></div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="icon-button mobile-menu" id="mobile-menu" type="button" aria-label="Abrir menu"><i data-lucide="menu"></i></button>
+        <button class="search-trigger" id="search-trigger" type="button">
+          <i data-lucide="search"></i><span>Buscar paciente, médico ou ID…</span><kbd>Ctrl K</kbd>
+        </button>
+        <div class="topbar-meta">
+          <div class="live-clock" aria-label="Horário atual">
+            <span class="live-pill"><span></span>Ao vivo</span>
+            <strong id="real-clock">--:--:--</strong>
+            <small id="real-date">Carregando data</small>
+          </div>
+          <button class="icon-button" id="notifications-button" type="button" aria-label="Notificações"><i data-lucide="bell"></i><span class="notification-dot"></span></button>
+          <button class="profile-button" id="profile-button" type="button">
+            <span class="avatar" id="profile-avatar">OP</span>
+            <span><strong id="profile-name">Operador</strong><small id="profile-role">Modo demonstração</small></span>
+            <i data-lucide="chevron-down"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="main-content" id="main-content">
+        <header class="page-header">
+          <div>
+            <div class="eyebrow"><span>Central operacional</span><i data-lucide="chevron-right"></i><strong>{{ page_title }}</strong></div>
+            <h1>{{ page_title }}</h1>
+            <p>{{ page_description }}</p>
+          </div>
+          <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+        </header>
+        <div class="page-body" aria-live="polite">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <dialog class="modal command-modal" id="search-modal">
+    <form method="dialog" class="command-shell">
+      <label class="command-input"><i data-lucide="search"></i><input id="global-search" type="search" autocomplete="off" placeholder="Digite pelo menos 2 caracteres"><button value="cancel" aria-label="Fechar"><kbd>Esc</kbd></button></label>
+      <div class="command-results" id="global-results"><div class="empty-state compact"><i data-lucide="search"></i><p>Pesquise pacientes, médicos ou identificadores.</p></div></div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="auth-modal">
+    <form class="modal-card auth-card" id="auth-form">
+      <div class="modal-header"><div class="modal-icon"><i data-lucide="shield-check"></i></div><div><h2>Acesso do operador</h2><p>Entre para executar ações protegidas.</p></div><button class="icon-button modal-close" type="button" data-close-modal="auth-modal" aria-label="Fechar"><i data-lucide="x"></i></button></div>
+      <div class="form-grid single">
+        <label class="field"><span>Usuário</span><input id="auth-username" autocomplete="username" value="operador" required></label>
+        <label class="field"><span>Senha</span><input id="auth-password" type="password" autocomplete="current-password" required></label>
+      </div>
+      <p class="security-note"><i data-lucide="lock-keyhole"></i>Sessão protegida por papel de acesso e token CSRF.</p>
+      <div class="modal-actions"><button class="button ghost" id="logout-button" type="button" hidden>Sair</button><button class="button primary" type="submit">Entrar</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

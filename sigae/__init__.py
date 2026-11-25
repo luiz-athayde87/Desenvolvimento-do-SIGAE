@@ -20,7 +20,12 @@ from .validation import require_json_object
 
 def create_app(config: dict[str, Any] | type[Config] | None = None) -> Flask:
     project_root = Path(__file__).resolve().parent.parent
-    app = Flask(__name__, template_folder=str(project_root / "templates"))
+    app = Flask(
+        __name__,
+        template_folder=str(project_root / "templates"),
+        static_folder=str(project_root / "static"),
+        static_url_path="/static",
+    )
     app.config.from_object(Config)
     if isinstance(config, dict):
         app.config.update(config)
@@ -51,7 +56,7 @@ def create_app(config: dict[str, Any] | type[Config] | None = None) -> Flask:
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://unpkg.com; "
+            "script-src 'self' https://unpkg.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com; "
             "img-src 'self' data:; connect-src 'self'"
@@ -71,9 +76,39 @@ def create_app(config: dict[str, Any] | type[Config] | None = None) -> Flask:
             )
         return response
 
+    pages = {
+        "overview": ("Visão geral", "Acompanhe a operação da unidade em tempo real."),
+        "patients": ("Pacientes", "Cadastre, pesquise e acompanhe todos os pacientes."),
+        "triage": ("Triagem de risco", "Classifique e reavalie prioridades clínicas."),
+        "queue": ("Fila de atendimento", "Gerencie chamadas e atendimentos ativos."),
+        "doctors": ("Corpo médico", "Administre a equipe e a disponibilidade do plantão."),
+        "history": ("Histórico", "Consulte atendimentos e eventos auditáveis."),
+        "reports": ("Relatórios", "Analise indicadores e exporte dados do plantão."),
+        "structures": ("Estruturas de dados", "Inspecione os índices acadêmicos do SIGAE."),
+        "settings": ("Configurações", "Gerencie acesso, segurança e dados da demonstração."),
+    }
+
+    def render_dashboard(page: str):
+        title, description = pages[page]
+        return render_template(
+            f"pages/{page}.html",
+            active_page=page,
+            page_title=title,
+            page_description=description,
+        )
+
     @app.get("/")
-    def index():
-        return render_template("index.html")
+    def overview_page():
+        return render_dashboard("overview")
+
+    for page_name in pages:
+        if page_name == "overview":
+            continue
+        app.add_url_rule(
+            f"/{page_name}",
+            endpoint=f"{page_name}_page",
+            view_func=lambda selected=page_name: render_dashboard(selected),
+        )
 
     register_legacy_routes(app)
     configure_logging(app)

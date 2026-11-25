@@ -23,6 +23,16 @@ def success(data: Any, status: int = 200):
     return jsonify({"data": data}), status
 
 
+def positive_int(name: str, default: int) -> int:
+    try:
+        value = int(request.args.get(name, default))
+    except (TypeError, ValueError) as exc:
+        raise ValidationError(f"O parâmetro {name} deve ser um número inteiro.") from exc
+    if value < 1:
+        raise ValidationError(f"O parâmetro {name} deve ser maior que zero.")
+    return value
+
+
 @api_bp.get("/health")
 def health():
     database = current_app.extensions["sigae_database"]
@@ -32,7 +42,7 @@ def health():
         {
             "status": "healthy",
             "service": "sigae",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "database": "ready",
         }
     )
@@ -41,6 +51,28 @@ def health():
 @api_bp.get("/state")
 def get_state():
     return success(service().state())
+
+
+@api_bp.get("/patients")
+def get_patients():
+    raw_priority = request.args.get("priority", "").strip()
+    priority = None
+    if raw_priority:
+        try:
+            priority = int(raw_priority)
+        except ValueError as exc:
+            raise ValidationError("Prioridade deve ser um número de 1 a 5.") from exc
+        if priority not in range(1, 6):
+            raise ValidationError("Prioridade deve estar entre 1 e 5.")
+    return success(
+        service().list_patients(
+            status=request.args.get("status", "").strip(),
+            priority=priority,
+            query=request.args.get("q", "").strip(),
+            page=positive_int("page", 1),
+            per_page=positive_int("per_page", 20),
+        )
+    )
 
 
 @api_bp.get("/patients/<identifier>")
@@ -81,6 +113,23 @@ def create_doctor():
     return success(service().create_doctor(data), 201)
 
 
+@api_bp.get("/doctors")
+def get_doctors():
+    return success(
+        service().list_doctors(
+            status=request.args.get("status", "").strip(),
+            query=request.args.get("q", "").strip(),
+        )
+    )
+
+
+@api_bp.patch("/doctors/<identifier>/status")
+@require_roles("administrador")
+def update_doctor_status(identifier: str):
+    data = require_json_object(request.get_json(silent=True))
+    return success(service().set_doctor_status(identifier.upper(), str(data.get("situacao", ""))))
+
+
 @api_bp.post("/attendances/call-next")
 @require_roles("enfermagem", "administrador")
 def call_next():
@@ -95,6 +144,35 @@ def search():
     return success(service().search(query))
 
 
+@api_bp.get("/history")
+def history():
+    return success(
+        service().history(
+            page=positive_int("page", 1),
+            per_page=positive_int("per_page", 20),
+        )
+    )
+
+
+@api_bp.get("/structures")
+def structures():
+    return success(service().state()["structures"])
+
+
+@api_bp.get("/reports/summary")
+def report_summary():
+    state = service().state()
+    return success(
+        {
+            "generated_at": state["server_time"],
+            "metrics": state["metrics"],
+            "audit_events": len(state["audit"]),
+            "total_patients": len(state["patients"]),
+            "total_doctors": len(state["doctors"]),
+        }
+    )
+
+
 @api_bp.get("/reports/shift.csv")
 def export_shift():
     state = service().state()
@@ -107,7 +185,7 @@ def export_shift():
                 patient["id"],
                 patient["nome"],
                 patient["prioridade"],
-                patient["horario_chegada"],
+                patient["horario_chegada_iso"],
                 patient["situacao"],
                 patient["medico_id"] or "",
             ]

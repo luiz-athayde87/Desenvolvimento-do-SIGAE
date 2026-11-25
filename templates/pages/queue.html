@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block page_actions %}<button class="button primary call-next" id="call-next" type="button"><i data-lucide="megaphone"></i>Chamar próximo paciente</button>{% endblock %}
+{% block content %}
+<section class="queue-status-grid"><article class="queue-status"><span class="pulse-icon"><i data-lucide="radio"></i></span><div><span>Atendimentos ativos</span><strong id="active-count">0</strong></div></article><article class="queue-status"><span class="wait-icon"><i data-lucide="timer"></i></span><div><span>Espera média</span><strong><span id="average-wait">0</span> min</strong></div></article><article class="queue-status"><span class="doctor-icon"><i data-lucide="user-round-check"></i></span><div><span>Médicos disponíveis</span><strong id="available-count">0</strong></div></article></section>
+<section class="panel active-panel"><div class="panel-header"><div><span class="panel-kicker">Em andamento</span><h2>Atendimentos ativos</h2></div><span class="live-pill"><span></span>Atualização automática</span></div><div class="active-attendances" id="active-attendances"></div></section>
+<section class="panel data-panel"><div class="panel-header"><div><span class="panel-kicker">Ordem clínica</span><h2>Fila de atendimento</h2></div><span class="chip neutral" id="queue-total">0 aguardando</span></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Paciente</th><th>Classificação</th><th>Chegada real</th><th>Tempo de espera</th><th>SLA</th><th></th></tr></thead><tbody id="queue-table"></tbody></table></div></section>
+{% endblock %}

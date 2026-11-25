@@ -17,6 +17,7 @@ RUN python -m pip install --upgrade pip && python -m pip install -r requirements
 COPY main.py arvore_avl.py arvore_rubro_negra.py heap_medicos.py heap_pacientes.py tabela_hash.py ./
 COPY sigae ./sigae
 COPY templates ./templates
+COPY static ./static
 
 RUN mkdir -p /app/instance && chown -R sigae:sigae /app
 USER sigae

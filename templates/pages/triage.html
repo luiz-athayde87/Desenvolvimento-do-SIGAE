@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block page_actions %}<a class="button secondary" href="/patients"><i data-lucide="users"></i>Ver pacientes</a>{% endblock %}
+{% block content %}
+<section class="triage-scale" aria-label="Escala de classificação de risco">
+  <article class="triage-level p1"><strong>P1</strong><span>Emergência</span><small>Imediato</small></article>
+  <article class="triage-level p2"><strong>P2</strong><span>Muito urgente</span><small>Até 10 min</small></article>
+  <article class="triage-level p3"><strong>P3</strong><span>Urgente</span><small>Até 60 min</small></article>
+  <article class="triage-level p4"><strong>P4</strong><span>Pouco urgente</span><small>Até 120 min</small></article>
+  <article class="triage-level p5"><strong>P5</strong><span>Não urgente</span><small>Até 240 min</small></article>
+</section>
+<section class="panel">
+  <div class="panel-header"><div><span class="panel-kicker">Reavaliação</span><h2>Pacientes aguardando triagem</h2></div><span class="chip neutral" id="triage-count">0 pacientes</span></div>
+  <div class="triage-list" id="triage-list"></div>
+</section>
+{% endblock %}
