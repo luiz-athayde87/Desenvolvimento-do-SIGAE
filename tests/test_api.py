@@ -131,9 +131,7 @@ def test_legacy_routes_remain_available(client) -> None:
 
 
 def test_api_errors_and_empty_operational_states(client) -> None:
-    invalid_body = client.post(
-        "/api/v1/patients", data="[]", content_type="application/json"
-    )
+    invalid_body = client.post("/api/v1/patients", data="[]", content_type="application/json")
     assert invalid_body.status_code == 400
     assert client.get("/api/v1/search?q=x").status_code == 400
     assert client.get("/api/v1/patients/P999").status_code == 404
