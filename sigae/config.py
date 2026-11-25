@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -16,6 +17,7 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = ENV == "production"
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     JSON_SORT_KEYS = False
 
 
