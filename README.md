@@ -2,46 +2,106 @@
 
 # SIGAE
 
-**Sistema Inteligente de Gerenciamento de Atendimentos de Emergência**
+### Sistema Inteligente de Gerenciamento de Atendimentos de Emergência
 
-Simulador full stack de triagem, fila clínica, distribuição de médicos e auditoria de atendimentos.
+**Plataforma full stack para triagem, priorização clínica, gestão de filas e distribuição inteligente da equipe médica.**
 
 [![CI](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/ci.yml/badge.svg)](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/Python-3.11%2B-2563eb)
-![Flask](https://img.shields.io/badge/Flask-3.1-111827)
-![Coverage](https://img.shields.io/badge/coverage-%E2%89%A585%25-16a34a)
-![License](https://img.shields.io/badge/license-not%20specified-64748b)
+[![E2E](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/e2e.yml/badge.svg)](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/e2e.yml)
+[![Security](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/security.yml/badge.svg)](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/security.yml)
+
+![Version](https://img.shields.io/badge/versão-1.2.0-2563eb)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.1-111827?logo=flask&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-persistente-0f80cc?logo=sqlite&logoColor=white)
+![Coverage](https://img.shields.io/badge/cobertura-88.41%25-16a34a)
+![Tests](https://img.shields.io/badge/testes-24%20aprovados-16a34a)
+
+[Visão geral](#visão-geral) · [Funcionalidades](#funcionalidades) · [Estruturas de dados](#estruturas-de-dados) · [Como executar](#como-executar) · [Arquitetura](#arquitetura) · [Qualidade](#qualidade-e-segurança)
 
 </div>
 
-> Projeto educacional e de portfólio. Não é um dispositivo médico e não deve orientar decisões clínicas reais.
+> [!IMPORTANT]
+> O SIGAE é um projeto educacional e de portfólio. Ele não é um dispositivo médico e não deve ser utilizado para orientar decisões clínicas reais.
 
 ## Visão geral
 
-O SIGAE demonstra um fluxo hospitalar completo em uma interface responsiva: cadastro e reclassificação de pacientes, chamada por prioridade, balanceamento da carga médica, encerramento ou cancelamento do atendimento, pesquisa global, relatório CSV e inspeção visual das estruturas de dados. Cada área operacional possui sua própria rota e mostra apenas as informações necessárias àquela tarefa.
+O SIGAE simula o fluxo operacional de uma unidade de emergência em uma interface moderna, responsiva e organizada por contexto. Cada área possui uma rota independente, apresenta somente as informações necessárias à tarefa e consome o mesmo estado persistido pelo backend.
 
-O backend Flask é a fonte única de verdade. O estado operacional é persistido em SQLite, exposto por uma API REST versionada e reconstruído em estruturas de dados implementadas no próprio projeto.
+O sistema cobre o ciclo completo do atendimento: cadastro, triagem, priorização, entrada na fila, seleção do médico, atendimento, encerramento, histórico e auditoria. O relógio da interface e os registros operacionais utilizam tempo real — não há avanço de tempo simulado.
 
-### Destaques
+### O que torna o projeto diferente
 
-- painel modular com Visão geral, Pacientes, Triagem, Fila, Corpo médico, Histórico, Relatórios, Estruturas e Configurações em páginas independentes;
-- relógio real do dispositivo, timestamps UTC reais e atualização automática dos dados operacionais;
-- interface moderna, responsiva, acessível e otimizada para tarefas;
-- classificação de risco P1–P5, com desempate FIFO;
-- Min-Heaps de pacientes e médicos com operações `O(log n)`;
-- Tabela Hash determinística, com encadeamento e redimensionamento;
-- Árvore AVL e Árvore Rubro-Negra para o histórico;
-- persistência SQLite, trilha de auditoria e transações;
-- autenticação por sessão, papéis de acesso e proteção CSRF opcionais;
-- cabeçalhos de segurança, IDs de requisição e `Server-Timing`;
-- API `/api/v1`, exportação CSV e compatibilidade temporária com a API antiga;
-- migrações versionadas de banco, paginação, filtros e gestão de usuários;
-- testes unitários, de integração e de jornada no Chromium, com cobertura mínima de 85%;
-- CI, CodeQL, auditoria de dependências, Docker, healthcheck e servidor Waitress para produção.
+| Pilar | Implementação |
+|---|---|
+| **Operação clara** | Páginas focadas para visão geral, pacientes, triagem, fila, médicos, histórico, relatórios e configurações |
+| **Priorização inteligente** | Classificação P1–P5 com Min-Heap, desempate FIFO e reclassificação de risco |
+| **Distribuição médica** | Seleção do profissional disponível com menor carga assistencial |
+| **Dados consistentes** | SQLite como fonte persistente, transações e reconstrução segura dos índices em memória |
+| **Rastreabilidade** | Histórico, trilha de auditoria, IDs de requisição e métricas de tempo de resposta |
+| **Qualidade verificável** | Testes unitários, integração, jornadas E2E, cobertura mínima, CI e análise de segurança |
 
-## Executar localmente
+## Funcionalidades
 
-Requisitos: Python 3.11 ou superior e Git.
+### Experiência operacional
+
+- dashboard com indicadores de fila, emergências, médicos disponíveis e atendimentos;
+- cadastro, busca, filtros, paginação e acompanhamento de pacientes;
+- triagem e reclassificação entre os níveis P1 e P5;
+- chamada do próximo paciente conforme prioridade clínica e ordem de chegada;
+- início, conclusão e cancelamento de atendimentos;
+- gestão da disponibilidade e carga da equipe médica;
+- histórico operacional e trilha de auditoria pesquisável;
+- relatórios por prioridade e exportação em CSV;
+- pesquisa global de pacientes, médicos e identificadores;
+- relógio local em tempo real, timestamps UTC e atualização automática;
+- interface responsiva para desktop, tablet e celular.
+
+### Páginas do painel
+
+| Rota | Área | Responsabilidade |
+|---|---|---|
+| `/` | Visão geral | Indicadores e panorama da unidade |
+| `/patients` | Pacientes | Cadastro, pesquisa e acompanhamento |
+| `/triage` | Triagem de risco | Classificação e reavaliação clínica |
+| `/queue` | Fila de atendimento | Chamadas e atendimentos em andamento |
+| `/doctors` | Corpo médico | Disponibilidade, carga e especialidades |
+| `/history` | Histórico | Atendimentos e eventos auditáveis |
+| `/reports` | Relatórios | Indicadores e exportações operacionais |
+| `/structures` | Estruturas | Inspeção visual dos índices reais |
+| `/settings` | Configurações | Acesso, segurança e dados da demonstração |
+
+## Estruturas de dados
+
+As estruturas são implementadas do zero em Python e reconstruídas a partir do estado persistido. A página **Estruturas** não exibe aproximações decorativas: ela representa a organização real usada pelo domínio.
+
+| Estrutura | Uso no SIGAE | Complexidade esperada | Visualização canônica |
+|---|---|---|---|
+| **Min-Heap de pacientes** | Próximo atendimento por risco, chegada e ID | Topo `O(1)`; inserção/remoção `O(log n)` | Árvore binária completa com índices, raiz e relações E/D |
+| **Min-Heap de médicos** | Profissional disponível com menor carga | Topo `O(1)`; inserção/remoção `O(log n)` | Árvore binária completa com carga e estado de cada médico |
+| **Tabela Hash** | Localização eficiente de registros por identificador | Busca média `O(1)` | Todos os buckets, incluindo colisões em cadeias encadeadas |
+| **Árvore AVL** | Índice balanceado do histórico | Busca/inserção `O(log n)` | Topologia real com altura e fator de balanceamento por nó |
+| **Árvore Rubro-Negra** | Índice cronológico do histórico | Busca/inserção `O(log n)` | Topologia real com ligações pai-filho e cores dos nós |
+
+```text
+                    raiz
+                  /      \
+              filho E   filho D
+              /   \       /   \
+            ...   ...    ...   ...
+```
+
+Além da topologia, a interface identifica raiz, níveis, filhos esquerdo e direito, índices internos, fatores de balanceamento e estados relevantes. Estruturas vazias apresentam orientação contextual em vez de dados artificiais.
+
+## Como executar
+
+### Pré-requisitos
+
+- Python 3.11 ou superior;
+- Git;
+- Docker e Docker Compose, opcionalmente.
+
+### Instalação local
 
 ```bash
 git clone https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE.git
@@ -49,7 +109,8 @@ cd Desenvolvimento-do-SIGAE
 python -m venv .venv
 ```
 
-No Windows PowerShell:
+<details>
+<summary><strong>Windows PowerShell</strong></summary>
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -57,7 +118,10 @@ python -m pip install -r requirements-dev.txt
 python -m sigae.cli --dev
 ```
 
-No Linux ou macOS:
+</details>
+
+<details>
+<summary><strong>Linux ou macOS</strong></summary>
 
 ```bash
 source .venv/bin/activate
@@ -65,47 +129,73 @@ python -m pip install -r requirements-dev.txt
 python -m sigae.cli --dev
 ```
 
-Acesse [http://127.0.0.1:5000](http://127.0.0.1:5000). O banco e os dados de demonstração são criados automaticamente em `instance/sigae.db`.
+</details>
 
-## Executar com Docker
+Acesse **[http://127.0.0.1:5000](http://127.0.0.1:5000)**. O banco SQLite e os dados fictícios de demonstração são criados automaticamente em `instance/sigae.db`.
 
-Copie `.env.example` para `.env`, substitua a chave e a senha por valores fortes e execute:
+### Docker
+
+Copie `.env.example` para `.env`, substitua a chave secreta e a senha por valores fortes e execute:
 
 ```bash
 docker compose up --build
 ```
 
-O contêiner usa usuário sem privilégios, autenticação obrigatória, volume persistente e healthcheck em `/api/v1/health`.
+O contêiner utiliza usuário sem privilégios, autenticação obrigatória, volume persistente, servidor Waitress e healthcheck em `/api/v1/health`.
 
 ## Configuração
 
-| Variável | Padrão local | Uso |
+| Variável | Padrão local | Responsabilidade |
 |---|---|---|
-| `SIGAE_ENV` | `development` | Define o ambiente; use `production` em produção |
-| `SIGAE_SECRET_KEY` | chave insegura de desenvolvimento | Assina a sessão; deve ser longa e aleatória |
+| `SIGAE_ENV` | `development` | Ambiente de execução |
+| `SIGAE_SECRET_KEY` | chave local insegura | Assinatura da sessão; substitua em produção |
 | `SIGAE_DATABASE` | `instance/sigae.db` | Caminho do banco SQLite |
-| `SIGAE_AUTH_REQUIRED` | `false` | Ativa autenticação, autorização e CSRF |
-| `SIGAE_DEMO_USER` | `operador` | Usuário administrador inicial |
-| `SIGAE_DEMO_PASSWORD` | `sigae-demo` | Senha inicial; troque antes de publicar |
+| `SIGAE_AUTH_REQUIRED` | `false` | Ativação de autenticação, autorização e CSRF |
+| `SIGAE_DEMO_USER` | `operador` | Administrador inicial |
+| `SIGAE_DEMO_PASSWORD` | `sigae-demo` | Senha inicial; deve ser substituída |
 
-Com autenticação ativa, faça login em `POST /api/v1/auth/login` e envie o valor retornado em `X-CSRF-Token` nas operações de escrita.
+Com autenticação ativa, faça login em `POST /api/v1/auth/login` e envie o token retornado no cabeçalho `X-CSRF-Token` das operações de escrita.
 
 ## Arquitetura
 
 ```mermaid
 flowchart LR
-    UI[Dashboard HTML/CSS/JS] --> API[Flask API v1]
+    UI[Dashboard modular<br/>HTML + CSS + JavaScript] --> API[API REST<br/>Flask /api/v1]
     API --> DOMAIN[Serviço de domínio]
     DOMAIN --> DB[(SQLite)]
     DOMAIN --> HEAPS[Min-Heaps]
     DOMAIN --> HASH[Tabela Hash]
     DOMAIN --> TREES[AVL + Rubro-Negra]
-    API --> OBS[Logs + Request ID + Server-Timing]
+    API --> AUTH[Sessão + Papéis + CSRF]
+    API --> OBS[Logs + Request ID<br/>Server-Timing]
 ```
 
-Detalhes estão em [docs/architecture.md](docs/architecture.md), e o contrato HTTP em [docs/api.md](docs/api.md) e [docs/openapi.yaml](docs/openapi.yaml).
+### Organização do repositório
 
-## Qualidade
+```text
+.
+├── sigae/                 # aplicação, API, domínio, autenticação e persistência
+├── templates/             # shell e páginas independentes do painel
+├── static/                # design system e JavaScript modular por página
+├── tests/                 # testes unitários, de API e integração
+├── e2e/                   # jornadas críticas executadas no Chromium
+├── docs/                  # arquitetura e contratos HTTP/OpenAPI
+├── *.py                   # estruturas de dados implementadas do zero
+├── Dockerfile             # imagem de produção
+├── compose.yaml           # serviço e volume persistente
+└── pyproject.toml         # dependências, lint, testes e cobertura
+```
+
+Para detalhes de implementação, consulte:
+
+- [Arquitetura técnica](docs/architecture.md)
+- [Documentação da API](docs/api.md)
+- [Contrato OpenAPI](docs/openapi.yaml)
+- [Guia de contribuição](CONTRIBUTING.md)
+- [Política de segurança](SECURITY.md)
+- [Histórico de versões](CHANGELOG.md)
+
+## Qualidade e segurança
 
 ```bash
 python -m ruff check .
@@ -115,26 +205,27 @@ python -m playwright install chromium
 python -m pytest e2e --browser chromium
 ```
 
-As automações executam lint, validação do JavaScript, testes em três versões do Python, jornadas reais no Chromium, CodeQL e auditoria de dependências. Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de contribuir e [SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
+O projeto possui atualmente **24 testes automatizados aprovados** e **88,41% de cobertura**, acima da exigência mínima de 85%.
 
-## Estrutura principal
+Os workflows do GitHub executam:
 
-```text
-.
-├── sigae/                 # aplicação, API, domínio, autenticação e persistência
-├── templates/             # shell e páginas independentes do painel
-├── static/                # design system e JavaScript modular por página
-├── tests/                 # testes de API, domínio e estruturas
-├── e2e/                   # jornadas críticas executadas no Chromium
-├── docs/                  # arquitetura e contrato HTTP
-├── *.py                   # estruturas de dados implementadas do zero
-├── Dockerfile             # imagem de produção
-├── compose.yaml           # serviço e volume persistente
-└── pyproject.toml         # metadados, lint, testes e cobertura
-```
+- lint e verificação de qualidade Python;
+- validação de sintaxe dos módulos JavaScript;
+- testes em múltiplas versões do Python;
+- jornadas reais no Chromium;
+- análise estática com CodeQL;
+- auditoria automática de dependências.
 
 ## Segurança e privacidade
 
-Os dados incluídos são fictícios. Não armazene dados pessoais ou clínicos reais neste simulador. Para qualquer ambiente compartilhado, ative autenticação, use HTTPS no proxy reverso, troque todas as credenciais e restrinja o acesso ao banco e aos backups.
+Todos os registros incluídos no projeto são fictícios. Não utilize dados pessoais ou clínicos reais. Em ambientes compartilhados, habilite autenticação, utilize HTTPS no proxy reverso, altere todas as credenciais iniciais e restrinja o acesso ao banco e aos backups.
 
-O histórico de evolução está no [CHANGELOG.md](CHANGELOG.md).
+---
+
+<div align="center">
+
+Desenvolvido como projeto acadêmico de estruturas de dados, engenharia de software e experiência de usuário.
+
+**[Voltar ao início](#sigae)**
+
+</div>

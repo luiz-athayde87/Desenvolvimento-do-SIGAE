@@ -2,12 +2,21 @@
 
 Todas as mudanças relevantes do projeto são documentadas neste arquivo.
 
-## [Não lançado]
+## [1.2.0] - 2026-11-25
 
 ### Adicionado
 
 - visualização canônica das estruturas: heaps binários completos, topologias AVL e Rubro-Negra e buckets encadeados da Tabela Hash;
 - identificação visual de raiz, níveis, filhos esquerdo/direito, índices, alturas, fatores de balanceamento e cores reais dos nós.
+
+### Alterado
+
+- README reorganizado como apresentação completa do produto, com rotas, arquitetura, execução, qualidade e segurança;
+- exportação da Árvore Rubro-Negra passa a preservar a topologia real dos nós.
+
+### Corrigido
+
+- centralização dos ícones nos indicadores da fila de atendimento.
 
 ## [1.1.0] - 2026-11-25
 
