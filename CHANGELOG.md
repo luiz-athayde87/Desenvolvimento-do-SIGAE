@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do projeto são documentadas neste arquivo.
 
+## [Não lançado]
+
+### Adicionado
+
+- visualização canônica das estruturas: heaps binários completos, topologias AVL e Rubro-Negra e buckets encadeados da Tabela Hash;
+- identificação visual de raiz, níveis, filhos esquerdo/direito, índices, alturas, fatores de balanceamento e cores reais dos nós.
+
 ## [1.1.0] - 2026-11-25
 
 ### Adicionado

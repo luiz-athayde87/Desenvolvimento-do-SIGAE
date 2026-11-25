@@ -55,6 +55,9 @@ def test_full_attendance_lifecycle_updates_doctor_load(client) -> None:
     assert doctor["situacao"] == "Disponivel"
     assert doctor["atendimentos_concluidos"] == 1
     assert state["structures"]["avl"] is not None
+    assert state["structures"]["red_black"] is not None
+    assert {"chave", "valor", "cor", "esq", "dir"} <= state["structures"]["red_black"].keys()
+    assert state["structures"]["red_black"]["cor"] == "PRETO"
     assert len(state["active_attendances"]) == 0
 
 

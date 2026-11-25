@@ -142,6 +142,20 @@ class ArvoreRubroNegra:
             self.em_ordem(no.dir, resultado)
         return resultado
 
+    def exportar_estrutura(self, no=None) -> dict[str, Any] | None:
+        """Exporta a topologia real da árvore, preservando filhos e cores."""
+        if no is None:
+            no = self.raiz
+        if no == self.NIL:
+            return None
+        return {
+            "chave": no.chave,
+            "valor": no.valor,
+            "cor": "VERMELHO" if no.cor == VERMELHO else "PRETO",
+            "esq": self.exportar_estrutura(no.esq),
+            "dir": self.exportar_estrutura(no.dir),
+        }
+
     def validar_propriedades(self) -> dict[str, Any]:
         """Valida ordenação, raiz preta, nós vermelhos e altura negra."""
         if self.raiz == self.NIL:

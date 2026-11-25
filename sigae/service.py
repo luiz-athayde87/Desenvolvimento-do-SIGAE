@@ -574,7 +574,7 @@ class SigaeService:
                 "patient_heap": self.patient_heap.exportar_array(),
                 "doctor_heap": self.doctor_heap.exportar_array(),
                 "hash": self.hash.exportar_buckets(),
-                "red_black": self.history_rb.em_ordem(),
+                "red_black": self.history_rb.exportar_estrutura(),
                 "avl": self.history_avl.exportar_estrutura(),
             },
         }

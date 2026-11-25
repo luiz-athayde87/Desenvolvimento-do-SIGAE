@@ -108,3 +108,14 @@ def test_rubro_negra_mantem_invariantes_em_sequencias_adversas() -> None:
 
     assert arvore.buscar(80) == {"valor": 80}
     assert [item["chave"] for item in arvore.em_ordem()] == sorted(valores)
+
+    exportada = arvore.exportar_estrutura()
+    assert exportada is not None
+    assert exportada["cor"] == "PRETO"
+
+    def contar_nos(no: dict | None) -> int:
+        if no is None:
+            return 0
+        return 1 + contar_nos(no["esq"]) + contar_nos(no["dir"])
+
+    assert contar_nos(exportada) == len(valores)

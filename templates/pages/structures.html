@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% block page_actions %}<span class="chip success"><span class="status-dot"></span>Sincronizadas com SQLite</span>{% endblock %}
 {% block content %}
-<section class="structure-intro"><div><i data-lucide="graduation-cap"></i></div><div><strong>Laboratório de estruturas de dados</strong><p>Visualização somente leitura dos índices reconstruídos a partir do estado persistido. A operação real permanece no servidor.</p></div></section>
+<section class="structure-intro"><div><i data-lucide="graduation-cap"></i></div><div><strong>Laboratório de estruturas de dados</strong><p>Cada índice é exibido em sua representação canônica: heaps como árvores binárias completas, AVL e Rubro-Negra com sua topologia real e Hash em buckets encadeados.</p></div></section>
 <section class="structure-tabs" role="tablist"><button class="structure-tab is-active" data-structure="patient_heap" type="button"><i data-lucide="list-tree"></i>Heap de pacientes</button><button class="structure-tab" data-structure="doctor_heap" type="button"><i data-lucide="git-branch"></i>Heap de médicos</button><button class="structure-tab" data-structure="hash" type="button"><i data-lucide="hash"></i>Tabela Hash</button><button class="structure-tab" data-structure="avl" type="button"><i data-lucide="network"></i>Árvore AVL</button><button class="structure-tab" data-structure="red_black" type="button"><i data-lucide="binary"></i>Rubro-Negra</button></section>
-<section class="panel structure-view"><div class="panel-header"><div><span class="panel-kicker">Inspeção atual</span><h2 id="structure-title">Heap de pacientes</h2></div><span class="chip neutral" id="structure-size">0 nós</span></div><div class="structure-canvas" id="structure-canvas"></div></section>
+<section class="panel structure-view">
+  <div class="panel-header structure-panel-header">
+    <div><span class="panel-kicker">Inspeção atual</span><h2 id="structure-title">Heap de pacientes</h2></div>
+    <div class="structure-panel-tools"><span class="structure-kind" id="structure-kind">Árvore binária completa</span><span class="chip neutral" id="structure-size">0 nós</span></div>
+  </div>
+  <div class="structure-explainer"><p id="structure-description"></p><div class="structure-legend" id="structure-legend"></div></div>
+  <div class="structure-canvas" id="structure-canvas"></div>
+</section>
 {% endblock %}
