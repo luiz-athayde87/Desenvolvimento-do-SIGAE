@@ -8,7 +8,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, g, jsonify, render_template, request
+from flask import Flask, Response, g, jsonify, render_template, request
 
 from .api import api_bp, register_error_handlers
 from .auth import auth_bp, require_roles, seed_demo_user
@@ -48,7 +48,7 @@ def create_app(config: dict[str, Any] | type[Config] | None = None) -> Flask:
         g.request_started_at = time.perf_counter()
 
     @app.after_request
-    def security_headers(response):
+    def security_headers(response: Response) -> Response:
         response.headers["X-Request-ID"] = g.get("request_id", "")
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
@@ -88,7 +88,7 @@ def create_app(config: dict[str, Any] | type[Config] | None = None) -> Flask:
         "settings": ("Configurações", "Gerencie acesso, segurança e dados da demonstração."),
     }
 
-    def render_dashboard(page: str):
+    def render_dashboard(page: str) -> str:
         title, description = pages[page]
         return render_template(
             f"pages/{page}.html",

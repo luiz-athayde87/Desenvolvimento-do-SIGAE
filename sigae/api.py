@@ -6,7 +6,7 @@ import csv
 import io
 from typing import Any
 
-from flask import Blueprint, Response, current_app, jsonify, request
+from flask import Blueprint, Flask, Response, current_app, jsonify, request
 
 from .auth import require_roles
 from .service import ConflictError, DomainError, NotFoundError, SigaeService
@@ -19,7 +19,7 @@ def service() -> SigaeService:
     return current_app.extensions["sigae_service"]
 
 
-def success(data: Any, status: int = 200):
+def success(data: Any, status: int = 200) -> Response:
     return jsonify({"data": data}), status
 
 
@@ -204,7 +204,7 @@ def reset():
     return success(service().state())
 
 
-def register_error_handlers(app) -> None:
+def register_error_handlers(app: Flask) -> None:
     @app.errorhandler(ValidationError)
     def validation_error(error: ValidationError):
         return (
@@ -233,7 +233,7 @@ def register_error_handlers(app) -> None:
         return jsonify({"error": {"code": "domain_error", "message": str(error)}}), 422
 
     @app.errorhandler(404)
-    def route_not_found(error):
+    def route_not_found(error: Exception) -> Response:
         if request.path.startswith("/api/"):
             return jsonify(
                 {"error": {"code": "route_not_found", "message": "Rota não encontrada."}}
