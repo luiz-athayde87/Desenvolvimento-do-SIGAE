@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS doctors (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     crm TEXT NOT NULL UNIQUE,
+    specialty TEXT NOT NULL DEFAULT 'Clínica Geral',
     status TEXT NOT NULL CHECK (status IN ('Disponivel', 'Em atendimento', 'Indisponivel')),
     completed INTEGER NOT NULL DEFAULT 0 CHECK (completed >= 0),
     last_service_seconds INTEGER NOT NULL DEFAULT 0
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS doctors (
 CREATE TABLE IF NOT EXISTS patients (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
+    complaint TEXT NOT NULL DEFAULT '',
     priority INTEGER NOT NULL CHECK (priority BETWEEN 1 AND 5),
     arrival_seconds INTEGER NOT NULL CHECK (arrival_seconds >= 0),
     status TEXT NOT NULL
@@ -68,8 +70,21 @@ CREATE TABLE IF NOT EXISTS metadata (
     value TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    version INTEGER PRIMARY KEY,
+    description TEXT NOT NULL,
+    applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_patients_status_priority
     ON patients(status, priority, arrival_seconds);
+CREATE INDEX IF NOT EXISTS idx_patients_name
+    ON patients(name);
+CREATE INDEX IF NOT EXISTS idx_patients_waiting
+    ON patients(priority, arrival_seconds)
+    WHERE status = 'Aguardando';
+CREATE INDEX IF NOT EXISTS idx_doctors_status_completed
+    ON doctors(status, completed, last_service_seconds);
 CREATE INDEX IF NOT EXISTS idx_attendances_status
     ON attendances(status, started_seconds);
 CREATE INDEX IF NOT EXISTS idx_audit_created_at
@@ -113,6 +128,37 @@ class Database:
     def initialize(self) -> None:
         with self.connection() as connection:
             connection.executescript(SCHEMA)
+            self._apply_migrations(connection)
+            connection.execute("PRAGMA optimize")
+
+    @staticmethod
+    def _column_names(connection: sqlite3.Connection, table: str) -> set[str]:
+        return {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
+
+    def _apply_migrations(self, connection: sqlite3.Connection) -> None:
+        applied = {
+            int(row["version"])
+            for row in connection.execute("SELECT version FROM schema_migrations")
+        }
+        migrations = [
+            (1, "Adiciona especialidade ao corpo médico"),
+            (2, "Adiciona queixa principal ao cadastro de pacientes"),
+        ]
+        for version, description in migrations:
+            if version in applied:
+                continue
+            if version == 1 and "specialty" not in self._column_names(connection, "doctors"):
+                connection.execute(
+                    "ALTER TABLE doctors ADD COLUMN specialty TEXT NOT NULL DEFAULT 'Clínica Geral'"
+                )
+            if version == 2 and "complaint" not in self._column_names(connection, "patients"):
+                connection.execute(
+                    "ALTER TABLE patients ADD COLUMN complaint TEXT NOT NULL DEFAULT ''"
+                )
+            connection.execute(
+                "INSERT INTO schema_migrations(version, description) VALUES (?, ?)",
+                (version, description),
+            )
 
     def close(self) -> None:
         """Encerra a conexão compartilhada usada por bancos em memória."""
