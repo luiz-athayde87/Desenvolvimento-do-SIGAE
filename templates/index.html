@@ -1067,28 +1067,572 @@ table.data-table tbody tr:hover { background: var(--surface-container-low); }
     scroll-behavior: auto !important;
   }
 }
+
+/* ========================================================================== */
+/* SIGAE 2.0 — Camada visual profissional                                     */
+/* ========================================================================== */
+:root {
+  --app-navy: #092d34;
+  --app-navy-2: #123e46;
+  --app-teal: #087f78;
+  --app-teal-hover: #066c66;
+  --app-teal-soft: #e8f5f3;
+  --app-page: #f4f7f8;
+  --app-card: #ffffff;
+  --app-text: #152a30;
+  --app-muted: #687d82;
+  --app-line: #dce6e8;
+  --app-shadow: 0 1px 2px rgb(17 47 54 / 0.04), 0 10px 30px rgb(17 47 54 / 0.055);
+  --app-shadow-raised: 0 16px 40px rgb(17 47 54 / 0.11);
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--app-page); color: var(--app-text); }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  border-top: 0;
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  padding: 1.4rem 1rem 1.1rem;
+  color: #effafa;
+  background: var(--app-navy);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 0.55rem 0.55rem;
+}
+
+.sidebar-brand-mark {
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 0.7rem;
+  color: #07343b;
+  background: #83e0d5;
+}
+
+.sidebar-brand-copy strong,
+.sidebar-brand-copy span { display: block; }
+.sidebar-brand-copy strong { font-family: var(--font-headline); font-size: 1rem; letter-spacing: 0.04em; }
+.sidebar-brand-copy span { margin-top: 0.1rem; color: #9cc1c4; font-size: 0.72rem; }
+
+.sidebar-nav { display: grid; gap: 0.35rem; }
+.sidebar-nav-label {
+  margin: 0 0.65rem 0.35rem;
+  color: #7fa8ab;
+  font-family: var(--font-label);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.sidebar-link {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0 0.72rem;
+  border-radius: 0.65rem;
+  color: #bed2d4;
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--dur-micro), background var(--dur-micro), transform var(--dur-micro);
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus-visible { color: #ffffff; background: var(--app-navy-2); transform: translateX(2px); }
+.sidebar-link.is-active { color: #ffffff; background: #194b53; box-shadow: inset 3px 0 #73d8cd; }
+
+.sidebar-health {
+  margin-top: auto;
+  padding: 0.9rem;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 0.045);
+}
+.sidebar-health-line { display: flex; align-items: center; gap: 0.55rem; font-size: 0.77rem; font-weight: 700; }
+.sidebar-health-dot { width: 0.48rem; height: 0.48rem; border-radius: 50%; background: #6bd295; box-shadow: 0 0 0 4px rgb(107 210 149 / 0.12); }
+.sidebar-health p { margin: 0.55rem 0 0; color: #8fb2b5; font-size: 0.69rem; line-height: 1.4; }
+
+.page-grid {
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 2.5rem;
+}
+
+.top-header {
+  position: relative;
+  padding: 1.15rem 1.25rem;
+  border-color: var(--app-line);
+  border-radius: 0.9rem;
+  background: var(--app-card);
+  box-shadow: var(--app-shadow);
+}
+
+.header-main { align-items: center; }
+.title-block { max-width: 76ch; }
+.kicker { margin-bottom: 0.25rem; color: var(--app-teal); font-size: 0.68rem; }
+.title { color: var(--app-text); font-size: clamp(1.5rem, 1.2rem + 0.8vw, 2rem); letter-spacing: -0.025em; }
+.lede { max-width: 74ch; margin-top: 0.35rem; color: var(--app-muted); font-size: 0.9rem; }
+
+.triage-legend-bar {
+  gap: 0.45rem;
+  padding: 0.72rem 0 0;
+  border-top: 1px solid var(--app-line);
+  background: transparent;
+}
+
+.sim-bar { gap: 0.75rem; padding-top: 0.75rem; border-color: var(--app-line); }
+.clock-readout { border-color: var(--app-line); background: var(--app-page); }
+
+.kpi-grid { gap: 0.85rem; }
+.status-card {
+  min-height: 8.2rem;
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 1.1rem;
+  border-color: var(--app-line);
+  border-radius: 0.85rem;
+  background: var(--app-card);
+  box-shadow: var(--app-shadow);
+  transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+}
+.status-card:hover { transform: translateY(-2px); box-shadow: var(--app-shadow-raised); }
+.status-card::after {
+  content: "";
+  position: absolute;
+  right: -1.3rem;
+  bottom: -1.7rem;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+}
+.kpi-label { color: var(--app-muted); letter-spacing: 0.055em; }
+.kpi-value { color: var(--app-text); font-size: clamp(1.8rem, 1.45rem + 0.9vw, 2.45rem); letter-spacing: -0.04em; }
+.kpi-caption { color: var(--app-muted); }
+
+.panel,
+.inspector-section {
+  border-color: var(--app-line);
+  border-radius: 0.9rem;
+  background: var(--app-card);
+  box-shadow: var(--app-shadow);
+}
+.panel { padding: 1.15rem; }
+.inspector-section { padding: 1.2rem; }
+.panel-stack { gap: 0.9rem; }
+.ops-grid,
+.bottom-grid { gap: 0.9rem; }
+.section-heading { color: var(--app-text); font-size: 1.03rem; letter-spacing: -0.01em; }
+.section-sub { color: var(--app-muted); font-size: 0.82rem; }
+
+.btn { border-radius: 0.6rem; font-family: var(--font-label); font-weight: 700; box-shadow: none; }
+.btn-primary { border-color: var(--app-teal); background: var(--app-teal); }
+.btn-primary:hover:not(:disabled) { border-color: var(--app-teal-hover); background: var(--app-teal-hover); transform: translateY(-1px); }
+.btn-secondary { border-color: #1f6641; background: #1f6641; }
+.btn-subtle { border-color: var(--app-line); background: var(--app-card); }
+
+.field input,
+.field select,
+.field textarea {
+  border-color: var(--app-line);
+  border-radius: 0.6rem;
+  background: #fbfdfd;
+}
+.field input:hover,
+.field select:hover,
+.field textarea:hover { border-color: #a6b9bd; }
+
+.call-preview-box {
+  border-color: #b9ded9;
+  border-radius: 0.75rem;
+  background: var(--app-teal-soft);
+}
+
+.table-wrap { border-color: var(--app-line); border-radius: 0.7rem; }
+.data-table th { color: #5f7479; background: #f3f7f8; letter-spacing: 0.045em; }
+.data-table td { border-color: #e6edef; }
+.data-table tbody tr:hover { background: #f5faf9; }
+
+.tab-bar { gap: 0.3rem; padding: 0.3rem; border: 1px solid var(--app-line); border-radius: 0.75rem; background: #f2f6f7; }
+.tab-btn { border-radius: 0.55rem; }
+.tab-btn.is-active { color: var(--app-text); background: var(--app-card); box-shadow: 0 1px 4px rgb(23 52 58 / 0.1); }
+.tab-panel { border-color: var(--app-line); border-radius: 0.75rem; }
+
+.scenario-card { border-color: var(--app-line); border-radius: 0.65rem; background: #fbfdfd; }
+.log-feed { border-color: var(--app-line); border-radius: 0.7rem; background: #0d2025; }
+
+.section-anchor { scroll-margin-top: 1.25rem; }
+
+@media (max-width: 1120px) {
+  .app-shell { grid-template-columns: 82px minmax(0, 1fr); }
+  .app-sidebar { align-items: center; padding-inline: 0.7rem; }
+  .sidebar-brand-copy,
+  .sidebar-nav-label,
+  .sidebar-link span,
+  .sidebar-health { display: none; }
+  .sidebar-link { width: 2.85rem; justify-content: center; padding: 0; }
+  .sidebar-link.is-active { box-shadow: inset 0 -3px #73d8cd; }
+}
+
+@media (max-width: 760px) {
+  .app-shell { display: block; }
+  .app-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.65rem 0.75rem;
+  }
+  .sidebar-brand { padding: 0; }
+  .sidebar-nav { display: flex; margin-left: auto; }
+  .sidebar-link { min-height: 2.55rem; }
+  .page-grid { padding: 0.85rem; }
+  .top-header { padding: 1rem; }
+  .header-main { align-items: flex-start; }
+}
+
+@media (max-width: 520px) {
+  .sidebar-brand-mark { width: 2.15rem; height: 2.15rem; }
+  .sidebar-link { width: 2.5rem; }
+  .sidebar-nav .sidebar-link:nth-of-type(4) { display: none; }
+  .title { font-size: 1.4rem; }
+  .lede { font-size: 0.82rem; }
+}
+
+/* Referência visual: dashboard SaaS hospitalar, claro e orientado à operação */
+:root {
+  --app-navy: #ffffff;
+  --app-navy-2: #eaf2ff;
+  --app-teal: #1673f9;
+  --app-teal-hover: #0b5fdc;
+  --app-teal-soft: #eaf3ff;
+  --app-page: #f5f8fe;
+  --app-card: #ffffff;
+  --app-text: #0d1732;
+  --app-muted: #617093;
+  --app-line: #e1e8f4;
+  --primary: #1673f9;
+  --on-primary-container: #0c5ed4;
+  --focus: #1673f9;
+  --app-shadow: 0 8px 28px rgb(38 75 137 / 0.07);
+  --app-shadow-raised: 0 18px 42px rgb(38 75 137 / 0.13);
+}
+
+.app-shell { grid-template-columns: 270px minmax(0, 1fr); }
+.app-sidebar {
+  color: #13214a;
+  background: #ffffff;
+  border-right: 1px solid var(--app-line);
+  box-shadow: 8px 0 28px rgb(38 75 137 / 0.035);
+}
+.sidebar-brand { padding: 0.2rem 0.6rem 0.8rem; }
+.sidebar-brand-mark { color: #ffffff; background: #1673f9; box-shadow: 0 8px 20px rgb(22 115 249 / 0.25); }
+.sidebar-brand-copy strong { color: #0d1732; font-size: 1.2rem; letter-spacing: -0.03em; }
+.sidebar-brand-copy span { color: #637298; }
+.sidebar-nav { gap: 0.22rem; }
+.sidebar-nav-label { margin-top: 0.55rem; color: #8693af; }
+.sidebar-link { color: #263964; }
+.sidebar-link:hover,
+.sidebar-link:focus-visible { color: #0a61da; background: #f0f5ff; transform: none; }
+.sidebar-link.is-active { color: #0a61da; background: #eaf2ff; box-shadow: inset 3px 0 #1673f9; }
+.sidebar-health { border-color: #dce6f4; background: #f8faff; }
+.sidebar-health-line { color: #1b2d58; }
+.sidebar-health p { color: #6c7c9f; }
+.page-grid { gap: 0.9rem; padding-top: 0; }
+
+.app-topbar {
+  min-height: 4.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--app-line);
+  background: rgb(255 255 255 / 0.88);
+  backdrop-filter: blur(14px);
+}
+.global-search { width: min(540px, 55%); position: relative; }
+.global-search-shell {
+  min-height: 2.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.9rem;
+  border: 1px solid #dce5f3;
+  border-radius: 999px;
+  color: #5d6c8d;
+  background: #f8faff;
+}
+.global-search-shell:focus-within { border-color: #85b4fb; box-shadow: 0 0 0 4px rgb(22 115 249 / 0.09); }
+.global-search-shell input { width: 100%; border: 0; outline: 0; color: #17254a; background: transparent; font-size: 0.87rem; }
+.global-search-shell input::placeholder { color: #8490aa; }
+.search-shortcut { padding: 0.15rem 0.45rem; border-radius: 0.45rem; color: #526384; background: #ebf0f8; font-family: var(--font-mono); font-size: 0.7rem; white-space: nowrap; }
+.global-search-results {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  right: 0;
+  padding: 0.45rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.8rem;
+  background: #ffffff;
+  box-shadow: var(--app-shadow-raised);
+}
+.global-search-results.is-visible { display: grid; gap: 0.25rem; }
+.global-search-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.65rem 0.75rem; border-radius: 0.55rem; font-size: 0.8rem; }
+.global-search-item:hover { background: #f3f7ff; }
+.global-search-item small { color: var(--app-muted); }
+.topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+.topbar-icon {
+  width: 2.55rem;
+  height: 2.55rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--app-line);
+  border-radius: 0.8rem;
+  color: #31446d;
+  background: #ffffff;
+}
+.operator-profile { display: flex; align-items: center; gap: 0.65rem; padding-left: 0.75rem; border-left: 1px solid var(--app-line); }
+.operator-avatar { width: 2.45rem; height: 2.45rem; display: grid; place-items: center; border-radius: 50%; color: #ffffff; background: #1673f9; font-family: var(--font-headline); font-size: 0.75rem; font-weight: 800; }
+.operator-copy strong,
+.operator-copy span { display: block; }
+.operator-copy strong { font-size: 0.78rem; }
+.operator-copy span { color: var(--app-muted); font-size: 0.68rem; }
+
+.top-header {
+  min-height: 8.4rem;
+  margin-top: 0.1rem;
+  overflow: hidden;
+  border: 0;
+  background:
+    radial-gradient(circle at 82% 30%, rgb(22 115 249 / 0.14), transparent 23%),
+    linear-gradient(110deg, #ffffff 0%, #f4f8ff 62%, #e8f2ff 100%);
+  box-shadow: none;
+}
+.top-header::after {
+  content: "";
+  position: absolute;
+  right: 6%;
+  top: 1.2rem;
+  width: 19rem;
+  height: 5rem;
+  opacity: 0.35;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 90'%3E%3Cpath d='M0 52h65l18-2 14-30 21 58 19-35 17 10h55l16-7 15 7 14-33 20 59 20-27h66l15-5 20 6 17-17 21 22h67' fill='none' stroke='%231673f9' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.top-header .header-main,
+.top-header .triage-legend-bar,
+.top-header .sim-bar { position: relative; z-index: 1; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.65rem; }
+.last-update { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.85rem; border: 1px solid #e0e8f4; border-radius: 999px; color: #526384; background: rgb(255 255 255 / 0.82); font-size: 0.73rem; }
+.last-update strong { color: #17254a; }
+.hero-primary { min-height: 2.75rem; padding-inline: 1.15rem; border-radius: 999px; }
+.top-header .triage-legend-bar { display: none; }
+.top-header .sim-bar { margin-top: 0.2rem; padding-top: 0.7rem; }
+.top-header .sim-controls .toggle-label { font-size: 0.72rem; }
+
+.kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.status-card { min-height: 8.8rem; border-color: #e3eaf5; border-radius: 1rem; }
+.status-card::before { content: ""; width: 2.15rem; height: 2.15rem; display: block; margin-bottom: 0.55rem; border-radius: 0.7rem; background: #e9f2ff; }
+.status-card:nth-child(1)::before { background: #e8f2ff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%231673f9' stroke-width='2'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E") center/18px no-repeat; }
+.status-card:nth-child(2)::before { background: #ffeded url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2'%3E%3Cpath d='M12 2v20M2 12h20'/%3E%3C/svg%3E") center/18px no-repeat; }
+.status-card:nth-child(3)::before { background: #e9f2ff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%231673f9' stroke-width='2'%3E%3Cpath d='M6 3v5a6 6 0 0 0 12 0V3M8 3H4M20 3h-4M12 14v7M9 21h6'/%3E%3C/svg%3E") center/18px no-repeat; }
+.status-card:nth-child(4)::before { background: #f1ebff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2'%3E%3Cpath d='M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z'/%3E%3C/svg%3E") center/18px no-repeat; }
+.status-card .kpi-label { position: absolute; top: 1.2rem; left: 3.8rem; color: #17254a; font-size: 0.78rem; text-transform: none; letter-spacing: 0; }
+.status-card .kpi-value { margin-top: 0.1rem; }
+.status-card::after { display: none; }
+
+.dashboard-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0.9rem; }
+.dashboard-primary { min-width: 0; display: grid; gap: 0.9rem; }
+.dashboard-charts { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr); gap: 0.9rem; }
+.dashboard-card { min-width: 0; padding: 1.1rem; border: 1px solid var(--app-line); border-radius: 1rem; background: #ffffff; box-shadow: var(--app-shadow); }
+.dashboard-card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.9rem; }
+.dashboard-card-title { display: flex; align-items: center; gap: 0.6rem; margin: 0; color: #152348; font-family: var(--font-headline); font-size: 0.96rem; }
+.dashboard-card-icon { width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: 0.65rem; color: #1673f9; background: #eaf2ff; }
+.dashboard-select { padding: 0.45rem 0.65rem; border: 1px solid var(--app-line); border-radius: 999px; color: #536383; background: #ffffff; font-size: 0.7rem; }
+.flow-chart { width: 100%; min-height: 190px; display: block; }
+.flow-chart .grid-line { stroke: #e8edf6; stroke-width: 1; }
+.flow-chart .axis-text { fill: #71809e; font-family: var(--font-label); font-size: 11px; }
+.flow-chart .area { fill: url(#flow-gradient); }
+.flow-chart .line { fill: none; stroke: #1673f9; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.flow-chart .point { fill: #1673f9; stroke: #ffffff; stroke-width: 3; }
+.priority-content { display: grid; grid-template-columns: 145px minmax(0, 1fr); align-items: center; gap: 0.9rem; min-height: 190px; }
+.priority-donut { width: 140px; height: 140px; position: relative; border-radius: 50%; background: conic-gradient(#ef4444 0 20%, #f97316 20% 40%, #f4b51c 40% 60%, #22b864 60% 80%, #72d59b 80% 100%); }
+.priority-donut::after { content: ""; position: absolute; inset: 27px; border-radius: 50%; background: #ffffff; }
+.priority-donut-center { position: absolute; z-index: 1; inset: 0; display: grid; place-content: center; text-align: center; }
+.priority-donut-center strong { font-size: 1.55rem; line-height: 1; }
+.priority-donut-center span { margin-top: 0.3rem; color: var(--app-muted); font-size: 0.7rem; }
+.priority-legend { display: grid; gap: 0.55rem; }
+.priority-legend-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 0.45rem; font-size: 0.71rem; }
+.priority-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.priority-legend-row strong { font-family: var(--font-mono); font-size: 0.66rem; }
+
+.dashboard-queue-card { padding: 0; overflow: hidden; }
+.dashboard-queue-card .dashboard-card-head { margin: 0; padding: 1rem 1.1rem 0.75rem; }
+.dashboard-call-btn { min-height: 2.35rem; padding-inline: 1rem; border-radius: 999px; }
+.dashboard-table { width: 100%; border-collapse: collapse; }
+.dashboard-table th { padding: 0.7rem 0.9rem; color: #637295; background: #f7f9fd; font-family: var(--font-label); font-size: 0.68rem; text-align: left; }
+.dashboard-table td { padding: 0.72rem 0.9rem; border-top: 1px solid #e9eef6; font-size: 0.76rem; }
+.dashboard-table tbody tr:first-child { background: #fff6f7; }
+.dashboard-person { display: flex; align-items: center; gap: 0.55rem; }
+.dashboard-avatar { width: 1.9rem; height: 1.9rem; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; color: #1c5fc2; background: #e7f1ff; font-size: 0.63rem; font-weight: 800; }
+.dashboard-status { display: inline-flex; align-items: center; padding: 0.26rem 0.55rem; border-radius: 999px; color: #ce3444; background: #ffe8eb; font-size: 0.67rem; }
+
+.team-card { padding: 0; overflow: hidden; }
+.team-card .dashboard-card-head { margin: 0; padding: 1rem 1rem 0.75rem; border-bottom: 1px solid var(--app-line); }
+.dashboard-team-list { display: grid; }
+.dashboard-doctor { display: grid; grid-template-columns: 2.35rem minmax(0, 1fr) auto; align-items: center; gap: 0.65rem; padding: 0.85rem 1rem; border-top: 1px solid #edf1f7; }
+.dashboard-doctor:first-child { border-top: 0; }
+.dashboard-doctor-avatar { width: 2.35rem; height: 2.35rem; display: grid; place-items: center; border-radius: 50%; color: #ffffff; background: linear-gradient(135deg, #1673f9, #65a9ff); font-size: 0.68rem; font-weight: 800; }
+.dashboard-doctor strong,
+.dashboard-doctor small { display: block; }
+.dashboard-doctor strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.76rem; }
+.dashboard-doctor small { margin-top: 0.2rem; color: var(--app-muted); font-size: 0.65rem; }
+.doctor-live { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.3rem; color: #1c9a4b; font-size: 0.65rem; font-weight: 700; }
+.doctor-live::before { content: ""; width: 0.42rem; height: 0.42rem; border-radius: 50%; background: currentColor; }
+.doctor-live.is-busy { color: #df7b14; }
+.dashboard-doctor-arrow { color: #7890b7; }
+.operations-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: 0.2rem 0.2rem 0; }
+.operations-heading h2 { margin: 0; color: #102044; font-size: 1.25rem; }
+.operations-heading p { margin: 0.25rem 0 0; color: var(--app-muted); font-size: 0.8rem; }
+
+@media (max-width: 1280px) {
+  .app-shell { grid-template-columns: 86px minmax(0, 1fr); }
+  .app-sidebar { align-items: center; padding-inline: 0.7rem; }
+  .sidebar-brand-copy,
+  .sidebar-nav-label,
+  .sidebar-link span,
+  .sidebar-health { display: none; }
+  .sidebar-link { width: 3rem; justify-content: center; padding: 0; }
+  .dashboard-layout { grid-template-columns: minmax(0, 1fr) 270px; }
+}
+
+@media (max-width: 1050px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .dashboard-team-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard-doctor { grid-template-columns: 2.2rem minmax(0, 1fr); }
+  .dashboard-doctor-arrow { display: none; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 820px) {
+  .app-shell { display: block; }
+  .app-sidebar { position: static; width: 100%; height: auto; flex-direction: row; padding: 0.65rem 0.8rem; }
+  .sidebar-brand { padding: 0; }
+  .sidebar-nav { display: flex; margin-left: auto; }
+  .page-grid { padding-top: 0; }
+  .app-topbar { margin-inline: -0.85rem; padding-inline: 0.85rem; }
+  .operator-copy { display: none; }
+  .dashboard-charts { grid-template-columns: 1fr; }
+  .dashboard-team-list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .global-search { width: 100%; }
+  .topbar-actions .topbar-icon,
+  .operator-profile { display: none; }
+  .hero-actions { width: 100%; justify-content: flex-start; }
+  .last-update { display: none; }
+  .top-header::after { display: none; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .priority-content { grid-template-columns: 1fr; justify-items: center; }
+  .priority-legend { width: 100%; }
+  .dashboard-table th:nth-child(4),
+  .dashboard-table td:nth-child(4),
+  .dashboard-table th:nth-child(5),
+  .dashboard-table td:nth-child(5) { display: none; }
+  .operations-heading { align-items: flex-start; flex-direction: column; }
+}
 </style>
 </head>
 <body>
 <div class="app-shell">
+  <aside class="app-sidebar" aria-label="Navegação principal do SIGAE">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-mark"><i data-lucide="cross" aria-hidden="true"></i></span>
+      <span class="sidebar-brand-copy"><strong>SIGAE</strong><span>Gestão de emergência</span></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="sidebar-nav-label">Operação</span>
+      <a class="sidebar-link is-active" href="#visao-geral" aria-label="Visão geral"><i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Visão geral</span></a>
+      <a class="sidebar-link" href="#operacao" aria-label="Pacientes"><i data-lucide="users" aria-hidden="true"></i><span>Pacientes</span></a>
+      <a class="sidebar-link" href="#operacao" aria-label="Triagem de risco"><i data-lucide="heart-pulse" aria-hidden="true"></i><span>Triagem de risco</span></a>
+      <a class="sidebar-link" href="#fila-dashboard" aria-label="Fila de atendimento"><i data-lucide="list-ordered" aria-hidden="true"></i><span>Fila de atendimento</span></a>
+      <a class="sidebar-link" href="#equipe-dashboard" aria-label="Corpo médico"><i data-lucide="stethoscope" aria-hidden="true"></i><span>Corpo médico</span></a>
+      <a class="sidebar-link" href="#qualidade" aria-label="Histórico de atendimentos"><i data-lucide="history" aria-hidden="true"></i><span>Histórico</span></a>
+      <a class="sidebar-link" href="#qualidade" aria-label="Relatórios"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i><span>Relatórios</span></a>
+      <span class="sidebar-nav-label">Estruturas de dados</span>
+      <a class="sidebar-link" href="#estruturas" aria-label="Estruturas de dados"><i data-lucide="network" aria-hidden="true"></i><span>Estruturas</span></a>
+      <a class="sidebar-link" href="#qualidade" aria-label="Configurações e qualidade"><i data-lucide="settings" aria-hidden="true"></i><span>Configurações</span></a>
+    </nav>
+
+    <div class="sidebar-health">
+      <div class="sidebar-health-line"><span class="sidebar-health-dot"></span><span>Sistema operacional</span></div>
+      <p>Estruturas sincronizadas e prontas para o plantão.</p>
+    </div>
+  </aside>
+
   <main class="page-grid">
+    <div class="app-topbar">
+      <div class="global-search">
+        <label class="global-search-shell" for="global-search-input">
+          <i data-lucide="search" aria-hidden="true"></i>
+          <input id="global-search-input" type="search" placeholder="Buscar paciente, médico ou ID..." autocomplete="off" oninput="buscarGlobal(this.value)">
+          <span class="search-shortcut">Ctrl K</span>
+        </label>
+        <div class="global-search-results" id="global-search-results" role="status" aria-live="polite"></div>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="topbar-icon" aria-label="Alternar aparência"><i data-lucide="sun" aria-hidden="true"></i></button>
+        <button type="button" class="topbar-icon" aria-label="Notificações"><i data-lucide="bell" aria-hidden="true"></i></button>
+        <div class="operator-profile">
+          <span class="operator-avatar">OP</span>
+          <span class="operator-copy"><strong>Operador</strong><span>SIGAE</span></span>
+          <i data-lucide="chevron-down" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
 
     <!-- CABEÇALHO E CONTROLE EM TEMPO REAL -->
-    <header class="top-header">
+    <header class="top-header section-anchor" id="visao-geral">
       <div class="header-main">
         <div class="title-block">
-          <p class="kicker">Estrutura de Dados Avançados · Simulador Hospitalar Interativo</p>
-          <h1 class="title">SIGAE — Sistema Inteligente de Gerenciamento de Atendimentos de Emergência</h1>
-          <p class="lede">Simulador operacional de pronto atendimento com triagem clínica de risco, alocação balanceada de médicos e inspeção em tempo real da Tabela Hash, Min-Heaps (Pacientes e Médicos) e Árvore Rubro-Negra.</p>
+          <p class="kicker">Unidade de emergência</p>
+          <h1 class="title">Visão geral da unidade</h1>
+          <p class="lede">Acompanhe o fluxo de atendimentos e as prioridades clínicas em tempo real.</p>
         </div>
-        <div style="display:flex; flex-wrap:wrap; gap:var(--space-xs); align-items:center;">
-          <button type="button" class="btn btn-subtle btn-sm" onclick="exportarEstadoCSV()">
-            <i data-lucide="download" aria-hidden="true"></i>
-            Exportar CSV
-          </button>
-          <button type="button" class="btn btn-danger btn-sm" id="btn-reset-plantao" onclick="resetarPlantao(this)">
-            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
-            Reiniciar Plantão
+        <div class="hero-actions">
+          <div class="last-update"><i data-lucide="clock-3" aria-hidden="true"></i><span>Última atualização<br><strong id="last-update-label">agora</strong></span></div>
+          <button type="button" class="btn btn-primary hero-primary" onclick="abrirNovoPaciente()">
+            <i data-lucide="plus" aria-hidden="true"></i>
+            Novo paciente
           </button>
         </div>
       </div>
@@ -1127,6 +1671,14 @@ table.data-table tbody tr:hover { background: var(--surface-container-low); }
             <input type="checkbox" id="chk-auto-chegadas" onchange="alternarAutoChegadas(this.checked)">
             Chegadas automáticas no modo ativo
           </label>
+          <button type="button" class="btn btn-subtle btn-sm" onclick="exportarEstadoCSV()">
+            <i data-lucide="download" aria-hidden="true"></i>
+            Exportar
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" id="btn-reset-plantao" onclick="resetarPlantao(this)">
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+            Reiniciar
+          </button>
         </div>
       </div>
     </header>
@@ -1158,8 +1710,62 @@ table.data-table tbody tr:hover { background: var(--surface-container-low); }
       </article>
     </section>
 
+    <!-- DASHBOARD EXECUTIVO -->
+    <section class="dashboard-layout section-anchor" aria-label="Resumo visual da unidade">
+      <div class="dashboard-primary">
+        <div class="dashboard-charts">
+          <article class="dashboard-card">
+            <div class="dashboard-card-head">
+              <h2 class="dashboard-card-title"><span class="dashboard-card-icon"><i data-lucide="trending-up" aria-hidden="true"></i></span>Fluxo de atendimentos</h2>
+              <span class="dashboard-select">Plantão atual</span>
+            </div>
+            <svg class="flow-chart" viewBox="0 0 620 210" role="img" aria-label="Evolução visual do fluxo de atendimentos no plantão">
+              <defs><linearGradient id="flow-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1673f9" stop-opacity="0.24"/><stop offset="1" stop-color="#1673f9" stop-opacity="0.02"/></linearGradient></defs>
+              <line class="grid-line" x1="42" x2="600" y1="35" y2="35"/><line class="grid-line" x1="42" x2="600" y1="75" y2="75"/><line class="grid-line" x1="42" x2="600" y1="115" y2="115"/><line class="grid-line" x1="42" x2="600" y1="155" y2="155"/>
+              <path class="area" id="dashboard-flow-area" d="M48 140 L138 122 L228 132 L318 92 L408 108 L498 82 L588 104 L588 170 L48 170 Z"/>
+              <path class="line" id="dashboard-flow-line" d="M48 140 L138 122 L228 132 L318 92 L408 108 L498 82 L588 104"/>
+              <g id="dashboard-flow-points"><circle class="point" cx="48" cy="140" r="5"/><circle class="point" cx="138" cy="122" r="5"/><circle class="point" cx="228" cy="132" r="5"/><circle class="point" cx="318" cy="92" r="5"/><circle class="point" cx="408" cy="108" r="5"/><circle class="point" cx="498" cy="82" r="5"/><circle class="point" cx="588" cy="104" r="5"/></g>
+              <text class="axis-text" x="48" y="196" text-anchor="middle">08h</text><text class="axis-text" x="138" y="196" text-anchor="middle">09h</text><text class="axis-text" x="228" y="196" text-anchor="middle">10h</text><text class="axis-text" x="318" y="196" text-anchor="middle">11h</text><text class="axis-text" x="408" y="196" text-anchor="middle">12h</text><text class="axis-text" x="498" y="196" text-anchor="middle">13h</text><text class="axis-text" x="588" y="196" text-anchor="middle">14h</text>
+            </svg>
+          </article>
+
+          <article class="dashboard-card">
+            <div class="dashboard-card-head">
+              <h2 class="dashboard-card-title"><span class="dashboard-card-icon"><i data-lucide="chart-pie" aria-hidden="true"></i></span>Distribuição por prioridade</h2>
+            </div>
+            <div class="priority-content">
+              <div class="priority-donut" id="priority-donut"><div class="priority-donut-center"><strong id="priority-total">0</strong><span>Pacientes</span></div></div>
+              <div class="priority-legend" id="priority-legend"></div>
+            </div>
+          </article>
+        </div>
+
+        <article class="dashboard-card dashboard-queue-card section-anchor" id="fila-dashboard">
+          <div class="dashboard-card-head">
+            <h2 class="dashboard-card-title"><span class="dashboard-card-icon"><i data-lucide="list-ordered" aria-hidden="true"></i></span>Fila de atendimento <small style="color:var(--app-muted); font-weight:500;">próximos da vez</small></h2>
+            <button type="button" class="btn btn-primary btn-sm dashboard-call-btn" onclick="chamarProximoPaciente()"><i data-lucide="play" aria-hidden="true"></i>Chamar próximo paciente</button>
+          </div>
+          <div class="table-wrap" style="border:0; border-radius:0;">
+            <table class="dashboard-table">
+              <thead><tr><th>#</th><th>Paciente</th><th>Prioridade</th><th>Chegada</th><th>Situação</th></tr></thead>
+              <tbody id="dashboard-queue-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <aside class="dashboard-card team-card section-anchor" id="equipe-dashboard">
+        <div class="dashboard-card-head"><h2 class="dashboard-card-title"><span class="dashboard-card-icon"><i data-lucide="users" aria-hidden="true"></i></span>Equipe médica</h2><i data-lucide="arrow-up-right" aria-hidden="true"></i></div>
+        <div class="dashboard-team-list" id="dashboard-team-list"></div>
+      </aside>
+    </section>
+
+    <div class="operations-heading">
+      <div><h2>Gestão operacional</h2><p>Cadastros, triagem, alocação médica e acompanhamento detalhado do plantão.</p></div>
+    </div>
+
     <!-- OPERAÇÃO HOSPITALAR EM TEMPO REAL -->
-    <section class="ops-grid" aria-label="Operação de Recepção, Triagem e Atendimentos">
+    <section class="ops-grid section-anchor" id="operacao" aria-label="Operação de Recepção, Triagem e Atendimentos">
 
       <!-- Coluna Esquerda: Recepção & Médicos -->
       <div class="panel-stack">
@@ -1303,7 +1909,7 @@ table.data-table tbody tr:hover { background: var(--surface-container-low); }
     </section>
 
     <!-- ABAS DE INSPEÇÃO VISUAL DAS ESTRUTURAS DE DADOS -->
-    <section class="inspector-section" aria-label="Inspeção Visual das Estruturas de Dados">
+    <section class="inspector-section section-anchor" id="estruturas" aria-label="Inspeção Visual das Estruturas de Dados">
       <div>
         <h2 class="section-heading">Inspeção Visual das Estruturas de Dados</h2>
         <p class="section-sub">Acompanhe o estado interno real de cada estrutura implementada manualmente em memória após cada operação clínica.</p>
@@ -1421,7 +2027,7 @@ table.data-table tbody tr:hover { background: var(--surface-container-low); }
     </section>
 
     <!-- CENÁRIOS DE TESTE AUTOMATIZADOS E HISTÓRICO / LOG -->
-    <section class="bottom-grid" aria-label="Cenários de Teste Automatizados e Auditoria">
+    <section class="bottom-grid section-anchor" id="qualidade" aria-label="Cenários de Teste Automatizados e Auditoria">
       <!-- Cenários de Teste Automatizados -->
       <article class="panel">
         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-sm);">
@@ -2381,6 +2987,38 @@ function cancelarRegistroInterno(pacienteId) {
 // ============================================================================
 // HANDLERS DE INTERFACE (DECLARAÇÕES HOISTED PARA ONCLICK/ONCHANGE/ONINPUT)
 // ============================================================================
+function abrirNovoPaciente() {
+  const alvo = document.getElementById(`operacao`);
+  const campo = document.getElementById(`inp-pac-nome`);
+  if (alvo) alvo.scrollIntoView({ behavior: `smooth`, block: `start` });
+  if (campo) setTimeout(() => campo.focus(), 450);
+}
+
+function buscarGlobal(termo) {
+  const painel = document.getElementById(`global-search-results`);
+  if (!painel) return;
+  const q = String(termo || ``).trim().toLocaleLowerCase(`pt-BR`);
+  if (q.length < 2) {
+    painel.classList.remove(`is-visible`);
+    painel.innerHTML = ``;
+    return;
+  }
+
+  const pacientes = hashPacientes.todosValores().filter((p) =>
+    p.id.toLocaleLowerCase(`pt-BR`).includes(q) || p.nome.toLocaleLowerCase(`pt-BR`).includes(q)
+  ).map((p) => ({ tipo: `Paciente`, id: p.id, nome: p.nome, detalhe: `${obterPrioMeta(p.prioridade).codigo} · ${p.situacao}` }));
+
+  const medicos = hashMedicos.todosValores().filter((m) =>
+    m.id.toLocaleLowerCase(`pt-BR`).includes(q) || m.nome.toLocaleLowerCase(`pt-BR`).includes(q) || m.crm.toLocaleLowerCase(`pt-BR`).includes(q)
+  ).map((m) => ({ tipo: `Médico`, id: m.id, nome: m.nome, detalhe: `${m.crm} · ${m.situacao}` }));
+
+  const resultados = pacientes.concat(medicos).slice(0, 6);
+  painel.innerHTML = resultados.length === 0
+    ? `<div class="global-search-item"><span>Nenhum registro encontrado</span><small>Tente outro nome ou ID</small></div>`
+    : resultados.map((r) => `<div class="global-search-item"><span><strong>${escaparHtml(r.nome)}</strong><br><small>${r.tipo} · ${escaparHtml(r.id)}</small></span><small>${escaparHtml(r.detalhe)}</small></div>`).join(``);
+  painel.classList.add(`is-visible`);
+}
+
 function mostrarFeedback(elId, texto, tone = `info`) {
   const el = document.getElementById(elId);
   if (!el) return;
@@ -2667,6 +3305,89 @@ function exportarEstadoCSV() {
 // ============================================================================
 // RENDERIZAÇÃO DE INTERFACE E VISUALIZAÇÕES SVG
 // ============================================================================
+function renderizarDashboardResumo() {
+  const pacientes = hashPacientes.todosValores();
+  const fila = heapPacientes.ordenadoCopia();
+  const medicos = hashMedicos.todosValores().sort((a, b) => a.idNum - b.idNum);
+
+  const tbody = document.getElementById(`dashboard-queue-body`);
+  if (tbody) {
+    if (fila.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">Nenhum paciente aguardando atendimento.</div></td></tr>`;
+    } else {
+      tbody.innerHTML = fila.slice(0, 6).map((p, i) => {
+        const meta = obterPrioMeta(p.prioridade);
+        const iniciais = p.nome.split(/\s+/).slice(0, 2).map((parte) => parte.charAt(0)).join(``).toUpperCase();
+        return `<tr>
+          <td class="mono"><strong>${i + 1}</strong></td>
+          <td><span class="dashboard-person"><span class="dashboard-avatar">${escaparHtml(iniciais)}</span><span><strong>${escaparHtml(p.nome)}</strong><br><small style="color:var(--app-muted)">${p.id}</small></span></span></td>
+          <td>${criarBadgePrioridade(p.prioridade)}</td>
+          <td class="mono">${formatarHora(p.chegadaSeg)}</td>
+          <td><span class="dashboard-status">${escaparHtml(p.situacao)}</span></td>
+        </tr>`;
+      }).join(``);
+    }
+  }
+
+  const equipe = document.getElementById(`dashboard-team-list`);
+  if (equipe) {
+    equipe.innerHTML = medicos.length === 0
+      ? `<div class="empty-state">Nenhum médico cadastrado.</div>`
+      : medicos.map((m) => {
+          const iniciais = m.nome.replace(/^(Dr\.|Dra\.)\s*/i, ``).split(/\s+/).slice(0, 2).map((parte) => parte.charAt(0)).join(``).toUpperCase();
+          const disponivel = m.situacao === `Disponível`;
+          return `<div class="dashboard-doctor">
+            <span class="dashboard-doctor-avatar">${escaparHtml(iniciais)}</span>
+            <span><strong>${escaparHtml(m.nome)}</strong><small>${m.id} · ${m.concluidos} atendimento${m.concluidos === 1 ? `` : `s`}</small><span class="doctor-live ${disponivel ? `` : `is-busy`}">${disponivel ? `Disponível` : `Em atendimento`}</span></span>
+            <i class="dashboard-doctor-arrow" data-lucide="chevron-right" aria-hidden="true"></i>
+          </div>`;
+        }).join(``);
+  }
+
+  const contagens = [1, 2, 3, 4, 5].map((prio) => fila.filter((p) => p.prioridade === prio).length);
+  const total = contagens.reduce((soma, valor) => soma + valor, 0);
+  const totalEl = document.getElementById(`priority-total`);
+  if (totalEl) totalEl.textContent = String(total);
+  const cores = [`#ef4444`, `#fb7185`, `#f4b51c`, `#22b864`, `#72d59b`];
+  const nomes = [`P1 – Emergência`, `P2 – Muito urgente`, `P3 – Urgente`, `P4 – Pouco urgente`, `P5 – Não urgente`];
+  const donut = document.getElementById(`priority-donut`);
+  if (donut) {
+    if (total === 0) {
+      donut.style.background = `#e9eef7`;
+    } else {
+      let acumulado = 0;
+      const segmentos = [];
+      for (let i = 0; i < contagens.length; i++) {
+        const inicio = acumulado;
+        acumulado += (contagens[i] / total) * 100;
+        segmentos.push(`${cores[i]} ${inicio.toFixed(2)}% ${acumulado.toFixed(2)}%`);
+      }
+      donut.style.background = `conic-gradient(${segmentos.join(`,`)})`;
+    }
+  }
+  const legenda = document.getElementById(`priority-legend`);
+  if (legenda) {
+    legenda.innerHTML = nomes.map((nome, i) => {
+      const percentual = total === 0 ? 0 : Math.round((contagens[i] / total) * 100);
+      return `<div class="priority-legend-row"><span class="priority-legend-dot" style="background:${cores[i]}"></span><span>${nome}</span><strong>${contagens[i]} (${percentual}%)</strong></div>`;
+    }).join(``);
+  }
+
+  const porHora = [8, 9, 10, 11, 12, 13, 14].map((hora) => pacientes.filter((p) => Math.floor(p.chegadaSeg / 3600) === hora).length);
+  const maximo = Math.max(1, ...porHora);
+  const pontos = porHora.map((valor, i) => ({ x: 48 + i * 90, y: 160 - (valor / maximo) * 105 }));
+  const linha = pontos.map((p, i) => `${i === 0 ? `M` : `L`}${p.x} ${p.y}`).join(` `);
+  const linhaEl = document.getElementById(`dashboard-flow-line`);
+  const areaEl = document.getElementById(`dashboard-flow-area`);
+  const pontosEl = document.getElementById(`dashboard-flow-points`);
+  if (linhaEl) linhaEl.setAttribute(`d`, linha);
+  if (areaEl) areaEl.setAttribute(`d`, `${linha} L588 170 L48 170 Z`);
+  if (pontosEl) pontosEl.innerHTML = pontos.map((p) => `<circle class="point" cx="${p.x}" cy="${p.y}" r="5"/>`).join(``);
+
+  const atualizado = document.getElementById(`last-update-label`);
+  if (atualizado) atualizado.textContent = `${formatarHora(estado.relogioSeg)} · plantão atual`;
+}
+
 function renderizarKPIs() {
   const fila = heapPacientes.ordenadoCopia();
   let vermelhos = 0;
@@ -3319,6 +4040,7 @@ function atualizarContadoresAbas() {
 function renderizarTudo() {
   renderizarControlesTempoReal();
   renderizarKPIs();
+  renderizarDashboardResumo();
   renderizarCallPreview();
   renderizarAtendimentosAtivos();
   renderizarFilaEspera();
@@ -3546,8 +4268,265 @@ async function inicializarAplicacao() {
 }
 
 document.addEventListener(`DOMContentLoaded`, () => {
+  document.addEventListener(`keydown`, (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase(`pt-BR`) === `k`) {
+      event.preventDefault();
+      const busca = document.getElementById(`global-search-input`);
+      if (busca) busca.focus();
+    }
+  });
   inicializarAplicacao();
 });
+</script>
+<script>
+// ============================================================================
+// ADAPTADOR DA API — O SERVIDOR É A FONTE ÚNICA DE VERDADE
+// ============================================================================
+async function requisitarAPI(caminho, opcoes = {}) {
+  const resposta = await fetch(caminho, {
+    headers: { "Content-Type": "application/json", ...(opcoes.headers || {}) },
+    ...opcoes
+  });
+  const conteudo = resposta.status === 204 ? null : await resposta.json();
+  if (!resposta.ok) {
+    const erro = new Error(conteudo?.error?.message || `Falha na comunicação (${resposta.status}).`);
+    erro.fields = conteudo?.error?.fields || {};
+    throw erro;
+  }
+  return conteudo?.data ?? conteudo;
+}
+
+function numeroDoId(id) {
+  const numero = Number(String(id).replace(/\D/g, ``));
+  return Number.isFinite(numero) ? numero : 0;
+}
+
+function situacaoPacienteUI(situacao) {
+  if (situacao === `Concluido`) return `Concluído`;
+  return situacao;
+}
+
+function situacaoMedicoUI(situacao) {
+  return situacao === `Disponivel` ? `Disponível` : situacao;
+}
+
+function hidratarDoServidor(snapshot) {
+  inicializarEstruturasVazias();
+  estado.relogioSeg = Number(snapshot.clock_seconds || 0);
+  estado.atendimentosAtivos = [];
+  estado.logs = [];
+
+  const medicosPorId = {};
+  for (const item of snapshot.doctors || []) {
+    const medico = {
+      id: item.id,
+      idNum: numeroDoId(item.id),
+      nome: item.nome,
+      crm: item.crm,
+      situacao: situacaoMedicoUI(item.situacao),
+      concluidos: Number(item.atendimentos_concluidos || 0),
+      ultimaLiberacaoSeg: Number(item.ultimo_atendimento || 0)
+    };
+    medicosPorId[medico.id] = medico;
+    hashMedicos.inserir(medico.id, medico, true);
+    if (medico.situacao === `Disponível`) heapMedicos.inserir(medico);
+  }
+
+  for (const item of snapshot.patients || []) {
+    const medico = item.medico_id ? medicosPorId[item.medico_id] : null;
+    const paciente = {
+      id: item.id,
+      idNum: numeroDoId(item.id),
+      nome: item.nome,
+      prioridade: Number(item.prioridade),
+      chegadaSeg: Number(item.horario_chegada),
+      situacao: situacaoPacienteUI(item.situacao),
+      medicoId: item.medico_id,
+      medicoNome: medico?.nome || null,
+      inicioAtendimentoSeg: item.inicio_atendimento,
+      fimAtendimentoSeg: item.fim_atendimento
+    };
+    hashPacientes.inserir(paciente.id, paciente, true);
+    if (paciente.situacao === `Aguardando`) {
+      heapPacientes.inserir(paciente);
+      arvoreRB.inserir(paciente, true);
+    }
+  }
+
+  estado.atendimentosAtivos = (snapshot.active_attendances || []).map((item) => ({
+    pacienteId: item.patient_id,
+    medicoId: item.doctor_id,
+    inicioSeg: item.started_seconds
+  }));
+  estado.logs = (snapshot.audit || []).map((item) => ({
+    estrutura: String(item.event || `SISTEMA`).split(`.`)[0].toUpperCase(),
+    mensagem: `${item.event}: ${JSON.stringify(item.detail || {})}`,
+    hora: item.created_at ? item.created_at.slice(11, 19) : formatarHora(estado.relogioSeg)
+  }));
+  estado.proxPacienteNum = Math.max(1, ...(snapshot.patients || []).map((item) => numeroDoId(item.id) + 1));
+  estado.proxMedicoNum = Math.max(1, ...(snapshot.doctors || []).map((item) => numeroDoId(item.id) + 1));
+  renderizarTudo();
+}
+
+async function sincronizarComServidor() {
+  try {
+    const snapshot = await requisitarAPI(`/api/v1/state`);
+    hidratarDoServidor(snapshot);
+    document.documentElement.dataset.api = `online`;
+  } catch (erro) {
+    document.documentElement.dataset.api = `offline`;
+    mostrarFeedback(`feedback-chamada`, `Servidor indisponível: ${erro.message}`, `error`);
+  }
+}
+
+salvarEstadoPersistente = async function () {};
+
+registrarPacienteForm = async function (ev) {
+  ev.preventDefault();
+  const nome = document.getElementById(`inp-pac-nome`)?.value.trim();
+  const prioridade = Number(document.getElementById(`inp-pac-prio`)?.value);
+  if (!nome) {
+    mostrarFeedback(`feedback-recepcao`, `Informe o nome do paciente.`, `error`);
+    return;
+  }
+  try {
+    const paciente = await requisitarAPI(`/api/v1/patients`, {
+      method: `POST`, body: JSON.stringify({ nome, prioridade })
+    });
+    document.getElementById(`inp-pac-nome`).value = ``;
+    document.getElementById(`inp-pac-hora`).value = ``;
+    await sincronizarComServidor();
+    mostrarFeedback(`feedback-recepcao`, `${paciente.id} · ${paciente.nome} registrado com sucesso.`, `ok`);
+  } catch (erro) {
+    mostrarFeedback(`feedback-recepcao`, erro.message, `error`);
+  }
+};
+
+gerarPacienteAleatorio = async function () {
+  const nomes = [`Beatriz Oliveira`, `Pedro Santos`, `Juliana Martins`, `Gabriel Costa`, `Camila Rodrigues`, `Thiago Almeida`];
+  const prioridades = [1, 2, 2, 3, 3, 4, 4, 5];
+  const nome = nomes[Math.floor(Math.random() * nomes.length)];
+  const prioridade = prioridades[Math.floor(Math.random() * prioridades.length)];
+  try {
+    await requisitarAPI(`/api/v1/patients`, {
+      method: `POST`, body: JSON.stringify({ nome, prioridade })
+    });
+    await sincronizarComServidor();
+    mostrarFeedback(`feedback-recepcao`, `Entrada simulada registrada no servidor.`, `ok`);
+  } catch (erro) {
+    mostrarFeedback(`feedback-recepcao`, erro.message, `error`);
+  }
+};
+
+registrarMedicoForm = async function (ev) {
+  ev.preventDefault();
+  const nome = document.getElementById(`inp-med-nome`)?.value.trim();
+  const crm = document.getElementById(`inp-med-crm`)?.value.trim();
+  try {
+    const medico = await requisitarAPI(`/api/v1/doctors`, {
+      method: `POST`, body: JSON.stringify({ nome, crm })
+    });
+    document.getElementById(`inp-med-nome`).value = ``;
+    document.getElementById(`inp-med-crm`).value = ``;
+    await sincronizarComServidor();
+    mostrarFeedback(`feedback-medicos`, `${medico.id} · ${medico.nome} adicionado ao plantão.`, `ok`);
+  } catch (erro) {
+    mostrarFeedback(`feedback-medicos`, erro.message, `error`);
+  }
+};
+
+chamarProximoPaciente = async function () {
+  try {
+    const atendimento = await requisitarAPI(`/api/v1/attendances/call-next`, { method: `POST` });
+    await sincronizarComServidor();
+    mostrarFeedback(
+      `feedback-chamada`,
+      `${atendimento.patient.nome} foi encaminhado para ${atendimento.doctor.nome}.`,
+      `ok`
+    );
+  } catch (erro) {
+    mostrarFeedback(`feedback-chamada`, erro.message, `error`);
+  }
+};
+
+finalizarAtendimento = async function (pacienteId) {
+  try {
+    await requisitarAPI(`/api/v1/patients/${encodeURIComponent(pacienteId)}/complete`, { method: `POST` });
+    await sincronizarComServidor();
+    mostrarFeedback(`feedback-chamada`, `Atendimento de ${pacienteId} concluído.`, `ok`);
+  } catch (erro) {
+    mostrarFeedback(`feedback-chamada`, erro.message, `error`);
+  }
+};
+
+cancelarAtendimento = async function (pacienteId) {
+  try {
+    await requisitarAPI(`/api/v1/patients/${encodeURIComponent(pacienteId)}/cancel`, { method: `POST` });
+    await sincronizarComServidor();
+    mostrarFeedback(`feedback-chamada`, `Registro de ${pacienteId} cancelado.`, `info`);
+  } catch (erro) {
+    mostrarFeedback(`feedback-chamada`, erro.message, `error`);
+  }
+};
+
+alterarRiscoPaciente = async function (pacienteId, novaPrioridade) {
+  try {
+    await requisitarAPI(`/api/v1/patients/${encodeURIComponent(pacienteId)}/priority`, {
+      method: `PATCH`, body: JSON.stringify({ prioridade: Number(novaPrioridade) })
+    });
+    await sincronizarComServidor();
+  } catch (erro) {
+    mostrarFeedback(`feedback-chamada`, erro.message, `error`);
+  }
+};
+
+resetarPlantao = async function (btn) {
+  if (btn && btn.dataset.armed !== `true`) {
+    btn.dataset.armed = `true`;
+    btn.textContent = `Confirmar reinício`;
+    setTimeout(() => {
+      if (btn.dataset.armed === `true`) {
+        btn.dataset.armed = `false`;
+        btn.innerHTML = `<i data-lucide="rotate-ccw" aria-hidden="true"></i> Reiniciar`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+    }, 3500);
+    return;
+  }
+  try {
+    await requisitarAPI(`/api/v1/reset`, { method: `POST` });
+    await sincronizarComServidor();
+    if (btn) btn.dataset.armed = `false`;
+    mostrarFeedback(`feedback-chamada`, `Plantão reiniciado com dados demonstrativos.`, `ok`);
+  } catch (erro) {
+    mostrarFeedback(`feedback-chamada`, erro.message, `error`);
+  }
+};
+
+exportarEstadoCSV = function () {
+  window.location.assign(`/api/v1/reports/shift.csv`);
+};
+
+buscarGlobal = async function (termo) {
+  const painel = document.getElementById(`global-search-results`);
+  const q = String(termo || ``).trim();
+  if (!painel || q.length < 2) {
+    painel?.classList.remove(`is-visible`);
+    return;
+  }
+  try {
+    const resultados = await requisitarAPI(`/api/v1/search?q=${encodeURIComponent(q)}`);
+    painel.innerHTML = resultados.length
+      ? resultados.map((item) => `<div class="global-search-item"><span><strong>${escaparHtml(item.name)}</strong><br><small>${item.type === `patient` ? `Paciente` : `Médico`} · ${item.id}</small></span><small>${escaparHtml(item.status)}</small></div>`).join(``)
+      : `<div class="global-search-item"><span>Nenhum registro encontrado</span></div>`;
+    painel.classList.add(`is-visible`);
+  } catch (erro) {
+    painel.innerHTML = `<div class="global-search-item"><span>${escaparHtml(erro.message)}</span></div>`;
+    painel.classList.add(`is-visible`);
+  }
+};
+
+document.addEventListener(`DOMContentLoaded`, sincronizarComServidor);
 </script>
 </body>
 </html>
