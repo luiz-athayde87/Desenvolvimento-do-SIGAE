@@ -2,6 +2,23 @@
 
 Todas as mudanças relevantes do projeto são documentadas neste arquivo.
 
+## [1.1.0] - 2026-11-25
+
+### Adicionado
+
+- nove páginas independentes e focadas para reduzir a carga cognitiva do painel;
+- relógio local em tempo real, timestamps UTC reais e atualização automática;
+- filtros, paginação, gestão do corpo médico, histórico e relatórios operacionais;
+- gestão de usuários, expiração de sessão e limitação de tentativas de login;
+- migrações versionadas de banco para especialidade e queixa principal;
+- testes de jornada no Chromium, CodeQL e auditoria automática de dependências.
+
+### Alterado
+
+- frontend monolítico substituído por shell, design system e módulos JavaScript por página;
+- experiência responsiva revisada para desktop, tablet e celular;
+- imagem Docker passa a incluir os recursos estáticos do painel.
+
 ## [1.0.0] - 2026-11-25
 
 ### Adicionado

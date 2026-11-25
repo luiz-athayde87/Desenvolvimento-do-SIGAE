@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: SIGAE API
-  version: 1.0.0
-  description: API do simulador de gerenciamento de atendimentos de emergência.
+  version: 1.1.0
+  description: API do simulador de gerenciamento de atendimentos de emergência com timestamps reais.
 servers:
   - url: http://127.0.0.1:5000/api/v1
     description: Ambiente local
@@ -56,6 +56,22 @@ paths:
         "400":
           $ref: "#/components/responses/ValidationError"
   /patients:
+    get:
+      tags: [Patients]
+      summary: Lista pacientes com filtros e paginação
+      parameters:
+        - {in: query, name: q, schema: {type: string}}
+        - {in: query, name: status, schema: {type: string}}
+        - {in: query, name: priority, schema: {type: integer, minimum: 1, maximum: 5}}
+        - {in: query, name: page, schema: {type: integer, minimum: 1, default: 1}}
+        - {in: query, name: per_page, schema: {type: integer, minimum: 1, default: 20}}
+      responses:
+        "200":
+          description: Página de pacientes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
     post:
       tags: [Patients]
       summary: Cadastra um paciente
@@ -146,6 +162,19 @@ paths:
         "409":
           $ref: "#/components/responses/Conflict"
   /doctors:
+    get:
+      tags: [Doctors]
+      summary: Lista médicos por texto ou situação
+      parameters:
+        - {in: query, name: q, schema: {type: string}}
+        - {in: query, name: status, schema: {type: string}}
+      responses:
+        "200":
+          description: Corpo médico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
     post:
       tags: [Doctors]
       summary: Cadastra um médico
@@ -164,6 +193,27 @@ paths:
           $ref: "#/components/responses/ValidationError"
         "409":
           $ref: "#/components/responses/Conflict"
+  /doctors/{identifier}/status:
+    patch:
+      tags: [Doctors]
+      summary: Atualiza a disponibilidade de um médico
+      parameters:
+        - $ref: "#/components/parameters/Identifier"
+        - $ref: "#/components/parameters/CsrfToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [situacao]
+              properties:
+                situacao:
+                  type: string
+                  enum: [Disponivel, Indisponivel]
+      responses:
+        "200": {description: Situação atualizada}
+        "404": {$ref: "#/components/responses/NotFound"}
   /attendances/call-next:
     post:
       tags: [Attendances]
@@ -190,6 +240,42 @@ paths:
             text/csv:
               schema:
                 type: string
+  /history:
+    get:
+      tags: [Attendances]
+      summary: Lista o histórico de atendimentos
+      parameters:
+        - {in: query, name: page, schema: {type: integer, minimum: 1, default: 1}}
+        - {in: query, name: per_page, schema: {type: integer, minimum: 1, default: 20}}
+      responses:
+        "200":
+          description: Histórico paginado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+  /structures:
+    get:
+      tags: [System]
+      summary: Inspeciona as estruturas de dados atuais
+      responses:
+        "200":
+          description: Min-Heaps, Hash, AVL e Rubro-Negra
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
+  /reports/summary:
+    get:
+      tags: [System]
+      summary: Retorna os indicadores operacionais atuais
+      responses:
+        "200":
+          description: Resumo do plantão
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Success"
   /reset:
     post:
       tags: [System]
@@ -235,6 +321,58 @@ paths:
       responses:
         "204":
           description: Sessão encerrada
+  /auth/users:
+    get:
+      tags: [Auth]
+      summary: Lista usuários como administrador
+      responses:
+        "200": {description: Usuários cadastrados}
+        "401": {description: Autenticação necessária}
+        "403": {description: Papel insuficiente}
+    post:
+      tags: [Auth]
+      summary: Cria um usuário como administrador
+      parameters:
+        - $ref: "#/components/parameters/CsrfToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role]
+              properties:
+                username: {type: string, minLength: 3}
+                password: {type: string, minLength: 8, format: password}
+                role:
+                  type: string
+                  enum: [recepcao, enfermagem, medico, administrador]
+      responses:
+        "201": {description: Usuário criado}
+        "400": {$ref: "#/components/responses/ValidationError"}
+        "409": {$ref: "#/components/responses/Conflict"}
+  /auth/users/{user_id}/active:
+    patch:
+      tags: [Auth]
+      summary: Ativa ou desativa um usuário
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema: {type: integer}
+        - $ref: "#/components/parameters/CsrfToken"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [active]
+              properties:
+                active: {type: boolean}
+      responses:
+        "200": {description: Estado atualizado}
+        "404": {$ref: "#/components/responses/NotFound"}
 components:
   parameters:
     Identifier:
@@ -262,6 +400,9 @@ components:
           type: string
           minLength: 1
           maxLength: 120
+        queixa:
+          type: string
+          maxLength: 500
         prioridade:
           type: integer
           minimum: 1
@@ -280,6 +421,9 @@ components:
         crm:
           type: string
           maxLength: 40
+        especialidade:
+          type: string
+          maxLength: 80
     Success:
       type: object
       required: [data]
