@@ -4,6 +4,11 @@ import { autoRefresh, closeModal, debounce, emptyTable, formatDateTime, formatDu
 let page = 1;
 let pages = 1;
 
+function applyPrioritySelectStyle(select) {
+  select.classList.remove("risk-p1", "risk-p2", "risk-p3", "risk-p4", "risk-p5");
+  select.classList.add(`risk-p${select.value}`);
+}
+
 async function load() {
   const query = document.getElementById("patient-search").value.trim();
   const status = document.getElementById("patient-status").value;
@@ -42,7 +47,10 @@ async function cancelPatient(identifier) {
 
 export async function init() {
   const params = new URLSearchParams(window.location.search);
+  const priorityInput = document.getElementById("patient-priority-input");
   document.getElementById("patient-search").value = params.get("q") || "";
+  applyPrioritySelectStyle(priorityInput);
+  priorityInput.addEventListener("change", () => applyPrioritySelectStyle(priorityInput));
   document.getElementById("new-patient").addEventListener("click", () => openModal("patient-modal"));
   if (params.get("new") === "1") openModal("patient-modal");
   document.getElementById("patient-form").addEventListener("submit", async (event) => {
@@ -53,6 +61,7 @@ export async function init() {
         body: JSON.stringify({ nome: document.getElementById("patient-name").value.trim(), queixa: document.getElementById("patient-complaint").value.trim(), prioridade: Number(document.getElementById("patient-priority-input").value) }),
       });
       event.target.reset();
+      applyPrioritySelectStyle(priorityInput);
       closeModal("patient-modal");
       toast(`${patient.id} · ${patient.nome} cadastrado no horário real atual.`);
       page = 1;
