@@ -1,83 +1,132 @@
 <div align="center">
 
-# 🏥 SIGAE — Sistema Inteligente de Gerenciamento de Atendimentos de Emergência
+# SIGAE
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.x-black?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.org/)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/pt-BR/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/pt-BR/docs/Web/CSS)
-[![Status](https://img.shields.io/badge/Status-Conclu%C3%ADdo-brightgreen?style=for-the-badge)]()
+**Sistema Inteligente de Gerenciamento de Atendimentos de Emergência**
 
-*Uma aplicação web robusta para triagem hospitalar, alocação equitativa de médicos e auditoria cronológica baseada em Estruturas de Dados Avançadas nativas.*
+Simulador full stack de triagem, fila clínica, distribuição de médicos e auditoria de atendimentos.
 
-[Visão Geral](#-visão-geral) • [Triagem de Risco](#-protocolo-de-triagem-de-risco) • [Estruturas de Dados](#%EF%B8%8F-arquitetura-e-estruturas-de-dados) • [Como Executar](#-como-executar) • [API REST](#-endpoints-da-api-rest) • [Inspetor Visual](#-inspetor-visual-de-memória)
+[![CI](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/ci.yml/badge.svg)](https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.11%2B-2563eb)
+![Flask](https://img.shields.io/badge/Flask-3.1-111827)
+![Coverage](https://img.shields.io/badge/coverage-%E2%89%A585%25-16a34a)
+![License](https://img.shields.io/badge/license-not%20specified-64748b)
 
 </div>
 
----
+> Projeto educacional e de portfólio. Não é um dispositivo médico e não deve orientar decisões clínicas reais.
 
-## 📖 Visão Geral
+## Visão geral
 
-O **SIGAE** foi desenvolvido para responder aos desafios operacionais de Unidades de Pronto Atendimento (UPAs) e hospitais. O sistema simula o fluxo completo de atendimento de emergência: desde o cadastro na recepção, passando pelo protocolo de triagem clínica de risco e distribuição justa da carga de trabalho médica, até o registro cronológico auditável das consultas.
+O SIGAE demonstra um fluxo hospitalar completo em uma interface responsiva: cadastro e reclassificação de pacientes, chamada por prioridade, balanceamento da carga médica, encerramento ou cancelamento do atendimento, pesquisa global, relatório CSV e inspeção visual das estruturas de dados.
 
-> ⚡ **Diferencial Técnico:** O backend **não utiliza bibliotecas utilitárias pré-prontas de estruturas de dados** (como `heapq` ou dicionários nativos para prioridade). Todas as estruturas — **Min-Heap Binário**, **Tabela Hash com Encadeamento**, **Árvore AVL** e **Árvore Rubro-Negra** — foram implementadas de forma nativa e pura em Python.
+O backend Flask é a fonte única de verdade. O estado operacional é persistido em SQLite, exposto por uma API REST versionada e reconstruído em estruturas de dados implementadas no próprio projeto.
 
----
+### Destaques
 
-## 🎨 Protocolo de Triagem de Risco
+- dashboard moderno, responsivo e acessível;
+- classificação de risco P1–P5, com desempate FIFO;
+- Min-Heaps de pacientes e médicos com operações `O(log n)`;
+- Tabela Hash determinística, com encadeamento e redimensionamento;
+- Árvore AVL e Árvore Rubro-Negra para o histórico;
+- persistência SQLite, trilha de auditoria e transações;
+- autenticação por sessão, papéis de acesso e proteção CSRF opcionais;
+- cabeçalhos de segurança, IDs de requisição e `Server-Timing`;
+- API `/api/v1`, exportação CSV e compatibilidade temporária com a API antiga;
+- testes automatizados com cobertura mínima de 85%;
+- CI, Docker, healthcheck e servidor Waitress para produção.
 
-A classificação de risco segue o protocolo visual hospitalar de triagem:
+## Executar localmente
 
-| Nível | Classificação | Cor Visual | Código Hex | Descrição Operacional |
-| :---: | :--- | :---: | :---: | :--- |
-| **1** | **Emergência** | 🔴 Vermelho | `#dc2626` | Risco iminente de morte (Atendimento Imediato) |
-| **2** | **Muito Urgente** | 🔴 Vermelho | `#dc2626` | Caso gravíssimo (Prioridade Máxima) |
-| **3** | **Urgente** | 🟡 Amarelo | `#eab308` | Atendimento Rápido |
-| **4** | **Pouco Urgente** | 🟢 Verde | `#16a34a` | Atendimento Ambulatorial Padrão |
-| **5** | **Não Urgente** | 🟢 Verde | `#16a34a` | Consulta Eletiva / Sintomas Leves |
+Requisitos: Python 3.11 ou superior e Git.
 
----
+```bash
+git clone https://github.com/luiz-athayde87/Desenvolvimento-do-SIGAE.git
+cd Desenvolvimento-do-SIGAE
+python -m venv .venv
+```
 
-## 🏗️ Arquitetura e Estruturas de Dados
+No Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+python -m sigae.cli --dev
+```
+
+No Linux ou macOS:
+
+```bash
+source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+python -m sigae.cli --dev
+```
+
+Acesse [http://127.0.0.1:5000](http://127.0.0.1:5000). O banco e os dados de demonstração são criados automaticamente em `instance/sigae.db`.
+
+## Executar com Docker
+
+Copie `.env.example` para `.env`, substitua a chave e a senha por valores fortes e execute:
+
+```bash
+docker compose up --build
+```
+
+O contêiner usa usuário sem privilégios, autenticação obrigatória, volume persistente e healthcheck em `/api/v1/health`.
+
+## Configuração
+
+| Variável | Padrão local | Uso |
+|---|---|---|
+| `SIGAE_ENV` | `development` | Define o ambiente; use `production` em produção |
+| `SIGAE_SECRET_KEY` | chave insegura de desenvolvimento | Assina a sessão; deve ser longa e aleatória |
+| `SIGAE_DATABASE` | `instance/sigae.db` | Caminho do banco SQLite |
+| `SIGAE_AUTH_REQUIRED` | `false` | Ativa autenticação, autorização e CSRF |
+| `SIGAE_DEMO_USER` | `operador` | Usuário administrador inicial |
+| `SIGAE_DEMO_PASSWORD` | `sigae-demo` | Senha inicial; troque antes de publicar |
+
+Com autenticação ativa, faça login em `POST /api/v1/auth/login` e envie o valor retornado em `X-CSRF-Token` nas operações de escrita.
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+    UI[Dashboard HTML/CSS/JS] --> API[Flask API v1]
+    API --> DOMAIN[Serviço de domínio]
+    DOMAIN --> DB[(SQLite)]
+    DOMAIN --> HEAPS[Min-Heaps]
+    DOMAIN --> HASH[Tabela Hash]
+    DOMAIN --> TREES[AVL + Rubro-Negra]
+    API --> OBS[Logs + Request ID + Server-Timing]
+```
+
+Detalhes estão em [docs/architecture.md](docs/architecture.md), e o contrato HTTP em [docs/api.md](docs/api.md) e [docs/openapi.yaml](docs/openapi.yaml).
+
+## Qualidade
+
+```bash
+python -m ruff check .
+python -m pytest --cov --cov-report=term-missing
+```
+
+A automação em `.github/workflows/ci.yml` executa lint e testes em três versões do Python. Consulte [CONTRIBUTING.md](CONTRIBUTING.md) antes de contribuir e [SECURITY.md](SECURITY.md) para reportar vulnerabilidades.
+
+## Estrutura principal
 
 ```text
-                         [ PAINEL WEB FLASK ]
-                                  │
-      ┌───────────────────────────┼───────────────────────────┐
-      ▼                           ▼                           ▼
-[ TABELA HASH ]          [ MIN-HEAP CLÍNICO ]        [ MIN-HEAP MÉDICO ]
-Busca O(1) por ID        Fila de Risco O(log n)      Equidade de Carga O(log n)
-      │                           │                           │
-      └───────────────────────────┼───────────────────────────┘
-                                  ▼
-                     [ ÁRVORE RUBRO-NEGRA / AVL ]
-                      Histórico em O(log n)
+.
+├── sigae/                 # aplicação, API, domínio, autenticação e persistência
+├── templates/             # dashboard web
+├── tests/                 # testes de API, domínio e estruturas
+├── docs/                  # arquitetura e contrato HTTP
+├── *.py                   # estruturas de dados implementadas do zero
+├── Dockerfile             # imagem de produção
+├── compose.yaml           # serviço e volume persistente
+└── pyproject.toml         # metadados, lint, testes e cobertura
+```
 
----
+## Segurança e privacidade
 
-### 🧠 Matriz de Decisão e Complexidade Computacional
+Os dados incluídos são fictícios. Não armazene dados pessoais ou clínicos reais neste simulador. Para qualquer ambiente compartilhado, ative autenticação, use HTTPS no proxy reverso, troque todas as credenciais e restrinja o acesso ao banco e aos backups.
 
-| Estrutura de Dados | Papel no SIGAE | Complexidade (Médio) | Complexidade (Pior Caso) | Justificativa de Escolha Técnica |
-| :--- | :--- | :---: | :---: | :--- |
-| **Tabela Hash** | Cadastro e Busca por ID | `O(1)` | `O(n)` | Acesso instantâneo sem varredura linear. Trata colisões por encadeamento (*separate chaining*). |
-| **Min-Heap (Pacientes)** | Fila de Prioridade Clínica | `O(1)` topo | `O(log n)` | Mantém o paciente com maior gravidade (menor valor 1–5) na raiz. Desempate por horário (FIFO) e ID. |
-| **Min-Heap (Médicos)** | Balanceamento de Carga Médica | `O(1)` topo | `O(log n)` | Seleciona automaticamente o médico disponível com o **menor número de atendimentos concluídos**. |
-| **Árvore Rubro-Negra** | Histórico Cronológico | `O(log n)` | `O(log n)` | Balanceamento relaxado por cores (Red/Black). Otimizada para inserções frequentes com poucas rotações. |
-| **Árvore AVL** | Índice de Consulta de Alta Frequência | `O(log n)` | `O(log n)` | Balanceamento rígido por Fator de Balanço (`|FB| <= 1`). Garante altura mínima para buscas em tempo recorde. |
-
----
-
-## 📁 Estrutura do Repositório
-
-```text
-sigae/
-├── main.py                   # Servidor Flask, API REST e Orquestrador
-├── tabela_hash.py            # Implementação da Tabela Hash O(1) com Encadeamento
-├── heap_pacientes.py         # Min-Heap Binário para Fila de Triagem de Risco
-├── heap_medicos.py           # Min-Heap Binário para Equidade de Carga Médica
-├── arvore_rubro_negra.py     # Árvore Rubro-Negra para Histórico Cronológico
-├── arvore_avl.py             # Árvore AVL para Consultas de Leitura Otimizada
-├── templates/
-│   └── index.html            # Interface Gráfica Responsiva + Inspetor Visual de Memória
-├── sigae_flask_project.zip   # Pacote ZIP completo do projeto
-└── README.md                 # Documentação do repositório
+O histórico de evolução está no [CHANGELOG.md](CHANGELOG.md).

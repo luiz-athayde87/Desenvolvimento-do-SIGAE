@@ -1,0 +1,45 @@
+# Arquitetura do SIGAE
+
+## Objetivos
+
+O projeto separa apresentação, contrato HTTP, regras de domínio, persistência e índices em memória. Essa divisão impede que o navegador mantenha uma versão concorrente do estado e torna os fluxos testáveis sem interface gráfica.
+
+## Componentes
+
+| Camada | Responsabilidade |
+|---|---|
+| `templates/index.html` | interface responsiva, feedback, gráficos e chamadas à API |
+| `sigae/api.py` | contrato REST, serialização, CSV e erros estruturados |
+| `sigae/service.py` | invariantes do fluxo de atendimento e sincronização das estruturas |
+| `sigae/database.py` | esquema, transações SQLite, índices e auditoria |
+| `sigae/auth.py` | login, sessão, papéis e proteção CSRF |
+| estruturas na raiz | filas, busca e histórico implementados sem bibliotecas prontas |
+
+## Fonte única de verdade
+
+O SQLite é o registro durável. Depois de cada alteração, o serviço reconstrói os índices em memória a partir de uma transação confirmada. Essa estratégia privilegia clareza e consistência no simulador; em escala real, a reconstrução completa seria substituída por atualizações incrementais e um banco cliente-servidor.
+
+## Regras centrais
+
+1. Pacientes aguardando são ordenados por prioridade, chegada e ID.
+2. Apenas médicos disponíveis participam do heap de distribuição.
+3. A distribuição escolhe a menor carga concluída, o maior tempo ocioso e o ID.
+4. Um paciente só pode ser concluído quando está em atendimento.
+5. Cancelar um atendimento libera o médico associado.
+6. Toda mudança relevante gera um evento de auditoria.
+
+## Segurança
+
+Quando `SIGAE_AUTH_REQUIRED=true`, as mutações exigem sessão, papel compatível e token CSRF. A aplicação usa cookies `HttpOnly`, `SameSite=Lax`, `Secure` em produção, CSP, bloqueio de enquadramento, política de permissões e respostas de API sem cache.
+
+As rotas antigas em `/api/*` existem apenas para migração e obedecem às mesmas regras de autorização. Novos consumidores devem usar exclusivamente `/api/v1/*`.
+
+## Observabilidade
+
+Cada resposta inclui `X-Request-ID`; a aplicação registra método, rota, status e duração. `Server-Timing` permite inspecionar latência no navegador. O healthcheck consulta o banco, e não apenas o processo HTTP.
+
+## Decisões e limites
+
+- SQLite atende demonstração e implantação de uma única instância. Múltiplas réplicas exigiriam PostgreSQL ou equivalente.
+- A interface permanece sem framework para manter o foco acadêmico nas estruturas de dados.
+- O estado clínico é simulado e não implementa protocolos, interoperabilidade ou requisitos regulatórios de um sistema hospitalar real.
