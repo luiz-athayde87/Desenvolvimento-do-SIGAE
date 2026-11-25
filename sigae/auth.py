@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import secrets
+import sqlite3
 import threading
 import time
 from collections import defaultdict, deque
 from functools import wraps
-from typing import Any
+from typing import Any, Callable
 
 from flask import Blueprint, current_app, jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -43,7 +44,7 @@ def seed_demo_user(database: Database, username: str, password: str) -> None:
             )
 
 
-def require_roles(*roles: str):
+def require_roles(*roles: str) -> Callable:
     def decorator(function):
         @wraps(function)
         def wrapped(*args: Any, **kwargs: Any):
@@ -193,7 +194,7 @@ def create_user():
                 str(cursor.lastrowid),
                 {"username": username, "role": role},
             )
-    except Exception as exc:
+    except sqlite3.IntegrityError as exc:
         if "UNIQUE" in str(exc).upper():
             return jsonify(
                 {"error": {"code": "conflict", "message": "Esse usuário já existe."}}

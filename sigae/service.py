@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import sqlite3
 import threading
 from typing import Any
 
@@ -45,12 +46,13 @@ class SigaeService:
         self._rebuild_indexes()
 
     @staticmethod
-    def _patient_public(row: Any, current_time: int | None = None) -> dict[str, Any]:
+    def _patient_public(row: sqlite3.Row, current_time: int | None = None) -> dict[str, Any]:
         now = current_time or now_epoch()
         arrival = int(row["arrival_seconds"])
         started = row["started_seconds"]
         ended = row["ended_seconds"]
         wait_end = int(started) if started else now
+        ended_or_now = int(ended) if ended else now
         return {
             "id": row["id"],
             "nome": row["name"],
@@ -65,11 +67,11 @@ class SigaeService:
             "fim_atendimento": ended,
             "fim_atendimento_iso": iso_from_epoch(ended),
             "tempo_espera_minutos": minutes_since(arrival, wait_end),
-            "tempo_total_minutos": minutes_since(arrival, int(ended) if ended else now),
+            "tempo_total_minutos": minutes_since(arrival, ended_or_now),
         }
 
     @staticmethod
-    def _doctor_public(row: Any) -> dict[str, Any]:
+    def _doctor_public(row: sqlite3.Row) -> dict[str, Any]:
         last_service = int(row["last_service_seconds"] or 0)
         return {
             "id": row["id"],
@@ -171,11 +173,39 @@ class SigaeService:
                 self.history_rb.inserir((row["started_seconds"], row["id"]), record)
                 self.history_avl.inserir_no(row["id"], record)
 
-    def _next_id(self, connection: Any, key: str, prefix: str, width: int) -> str:
+    def _next_id(self, connection: sqlite3.Connection, key: str, prefix: str, width: int) -> str:
         row = connection.execute("SELECT value FROM metadata WHERE key = ?", (key,)).fetchone()
         number = int(row["value"]) if row else 1
         self.db.set_metadata(connection, key, number + 1)
         return f"{prefix}{number:0{width}d}"
+
+    @staticmethod
+    def _paginate(page: int, per_page: int) -> tuple[int, int]:
+        return max(1, page), min(100, max(1, per_page))
+
+    @staticmethod
+    def _where(clauses: list[str]) -> str:
+        return f"WHERE {' AND '.join(clauses)}" if clauses else ""
+
+    def _set_doctor_available(
+        self,
+        connection: sqlite3.Connection,
+        doctor_id: str,
+        current_time: int,
+        *,
+        increment_completed: bool = False,
+    ) -> None:
+        if increment_completed:
+            connection.execute(
+                "UPDATE doctors SET status = 'Disponivel', completed = completed + 1, "
+                "last_service_seconds = ? WHERE id = ?",
+                (current_time, doctor_id),
+            )
+        else:
+            connection.execute(
+                "UPDATE doctors SET status = 'Disponivel', last_service_seconds = ? WHERE id = ?",
+                (current_time, doctor_id),
+            )
 
     def create_patient(self, data: dict[str, Any]) -> dict[str, Any]:
         name = text_field(data, "nome", "Nome")
@@ -324,10 +354,8 @@ class SigaeService:
                 "WHERE patient_id = ? AND status = 'Em atendimento'",
                 (current_time, identifier),
             )
-            connection.execute(
-                "UPDATE doctors SET status = 'Disponivel', completed = completed + 1, "
-                "last_service_seconds = ? WHERE id = ?",
-                (current_time, row["doctor_id"]),
+            self._set_doctor_available(
+                connection, row["doctor_id"], current_time, increment_completed=True
             )
             self.db.audit(connection, "attendance.completed", "patient", identifier, {})
         self._rebuild_indexes()
@@ -355,11 +383,7 @@ class SigaeService:
                     "WHERE patient_id = ? AND status = 'Em atendimento'",
                     (current_time, identifier),
                 )
-                connection.execute(
-                    "UPDATE doctors SET status = 'Disponivel', "
-                    "last_service_seconds = ? WHERE id = ?",
-                    (current_time, row["doctor_id"]),
-                )
+                self._set_doctor_available(connection, row["doctor_id"], current_time)
             self.db.audit(connection, "patient.cancelled", "patient", identifier, {})
         self._rebuild_indexes()
         return self.get_patient(identifier)
@@ -423,9 +447,8 @@ class SigaeService:
             clauses.append("(id LIKE ? OR name LIKE ?)")
             term = f"%{query}%"
             parameters.extend((term, term))
-        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-        page = max(1, page)
-        per_page = min(100, max(1, per_page))
+        where = self._where(clauses)
+        page, per_page = self._paginate(page, per_page)
         with self.db.connection() as connection:
             total = connection.execute(
                 f"SELECT COUNT(*) AS total FROM patients {where}", parameters
@@ -454,7 +477,7 @@ class SigaeService:
             clauses.append("(id LIKE ? OR name LIKE ? OR crm LIKE ? OR specialty LIKE ?)")
             term = f"%{query}%"
             parameters.extend((term, term, term, term))
-        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        where = self._where(clauses)
         with self.db.connection() as connection:
             rows = connection.execute(
                 f"SELECT * FROM doctors {where} ORDER BY name", parameters
@@ -462,8 +485,7 @@ class SigaeService:
         return [self._doctor_public(row) for row in rows]
 
     def history(self, *, page: int = 1, per_page: int = 20) -> dict[str, Any]:
-        page = max(1, page)
-        per_page = min(100, max(1, per_page))
+        page, per_page = self._paginate(page, per_page)
         with self.db.connection() as connection:
             total = connection.execute("SELECT COUNT(*) AS total FROM attendances").fetchone()[
                 "total"
@@ -521,14 +543,14 @@ class SigaeService:
             doctors = [
                 self._doctor_public(row) for row in connection.execute("SELECT * FROM doctors")
             ]
-            active = [
+            active: list[dict[str, Any]] = [
                 dict(row)
                 for row in connection.execute(
                     "SELECT * FROM attendances WHERE status = 'Em atendimento' "
                     "ORDER BY started_seconds"
                 )
             ]
-            audit = []
+            audit: list[dict[str, Any]] = []
             for row in connection.execute("SELECT * FROM audit_log ORDER BY id DESC LIMIT 50"):
                 item = dict(row)
                 item["detail"] = json.loads(item.pop("detail_json"))

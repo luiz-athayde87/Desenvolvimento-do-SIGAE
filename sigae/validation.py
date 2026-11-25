@@ -20,7 +20,8 @@ def require_json_object(data: Any) -> dict[str, Any]:
 
 
 def text_field(data: dict[str, Any], field: str, label: str, max_length: int = 120) -> str:
-    value = str(data.get(field, "")).strip()
+    raw = data.get(field, "")
+    value = "" if raw is None else str(raw).strip()
     if not value:
         raise ValidationError("Revise os campos informados.", {field: f"{label} é obrigatório."})
     if len(value) > max_length:

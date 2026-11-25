@@ -133,6 +133,8 @@ class Database:
 
     @staticmethod
     def _column_names(connection: sqlite3.Connection, table: str) -> set[str]:
+        if table not in {"doctors", "patients", "attendances", "audit_log", "users", "metadata", "schema_migrations"}:
+            raise ValueError(f"Tabela inválida: {table}")
         return {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
 
     def _apply_migrations(self, connection: sqlite3.Connection) -> None:
@@ -176,7 +178,7 @@ class Database:
     ) -> None:
         connection.execute(
             "INSERT INTO audit_log(event, entity_type, entity_id, detail_json) VALUES (?, ?, ?, ?)",
-            (event, entity_type, entity_id, json.dumps(detail, ensure_ascii=False)),
+            (event, entity_type, entity_id, json.dumps(detail, ensure_ascii=False, default=str)),
         )
 
     def get_metadata(self, key: str, default: str) -> str:
