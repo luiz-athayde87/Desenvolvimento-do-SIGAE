@@ -1419,8 +1419,19 @@ body { background: var(--app-page); color: var(--app-text); }
   color: #31446d;
   background: #ffffff;
 }
-.operator-profile { display: flex; align-items: center; gap: 0.65rem; padding-left: 0.75rem; border-left: 1px solid var(--app-line); }
+.operator-profile { display: flex; align-items: center; gap: 0.65rem; padding: 0.25rem 0 0.25rem 0.75rem; border: 0; border-left: 1px solid var(--app-line); color: inherit; background: transparent; cursor: pointer; text-align: left; }
+.operator-profile:hover .operator-copy strong { color: var(--app-primary); }
 .operator-avatar { width: 2.45rem; height: 2.45rem; display: grid; place-items: center; border-radius: 50%; color: #ffffff; background: #1673f9; font-family: var(--font-headline); font-size: 0.75rem; font-weight: 800; }
+.auth-dialog { width: min(92vw, 27rem); padding: 0; border: 0; border-radius: 1.5rem; color: var(--app-ink); background: #ffffff; box-shadow: 0 30px 80px rgba(15, 35, 67, 0.24); }
+.auth-dialog::backdrop { background: rgba(15, 35, 67, 0.48); backdrop-filter: blur(5px); }
+.auth-dialog-card { padding: 1.75rem; }
+.auth-dialog-head { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+.auth-dialog-head h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+.auth-dialog-head p { margin: 0; color: var(--app-muted); font-size: 0.9rem; }
+.auth-dialog-close { width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--app-line); border-radius: 50%; color: var(--app-muted); background: #ffffff; cursor: pointer; }
+.auth-dialog-form { display: grid; gap: 1rem; }
+.auth-dialog-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.25rem; }
+.auth-session-note { margin: 0; padding: 0.75rem; border-radius: 0.8rem; color: #175cd3; background: #eff6ff; font-size: 0.8rem; line-height: 1.45; }
 .operator-copy strong,
 .operator-copy span { display: block; }
 .operator-copy strong { font-size: 0.78rem; }
@@ -1612,11 +1623,11 @@ body { background: var(--app-page); color: var(--app-text); }
       <div class="topbar-actions">
         <button type="button" class="topbar-icon" aria-label="Alternar aparência"><i data-lucide="sun" aria-hidden="true"></i></button>
         <button type="button" class="topbar-icon" aria-label="Notificações"><i data-lucide="bell" aria-hidden="true"></i></button>
-        <div class="operator-profile">
+        <button type="button" class="operator-profile" id="operator-profile" onclick="abrirDialogoAutenticacao()" aria-label="Abrir sessão do operador">
           <span class="operator-avatar">OP</span>
-          <span class="operator-copy"><strong>Operador</strong><span>SIGAE</span></span>
+          <span class="operator-copy"><strong id="operator-name">Operador</strong><span id="operator-role">Entrar no SIGAE</span></span>
           <i data-lucide="chevron-down" aria-hidden="true"></i>
-        </div>
+        </button>
       </div>
     </div>
 
@@ -2133,6 +2144,36 @@ body { background: var(--app-page); color: var(--app-text); }
 </div>
 
 <api-shim></api-shim>
+
+<dialog class="auth-dialog" id="auth-dialog" aria-labelledby="auth-dialog-title">
+  <div class="auth-dialog-card">
+    <div class="auth-dialog-head">
+      <div>
+        <h2 id="auth-dialog-title">Acesso do operador</h2>
+        <p>Entre com uma conta autorizada para operar o plantão.</p>
+      </div>
+      <button type="button" class="auth-dialog-close" onclick="fecharDialogoAutenticacao()" aria-label="Fechar">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <form class="auth-dialog-form" id="auth-form" onsubmit="autenticarOperador(event)">
+      <label class="field">
+        <span class="field-label">Usuário</span>
+        <input id="auth-username" name="username" autocomplete="username" value="operador" required>
+      </label>
+      <label class="field">
+        <span class="field-label">Senha</span>
+        <input id="auth-password" name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <p class="auth-session-note">Em produção, todas as ações são protegidas por sessão, papel de acesso e token CSRF.</p>
+      <div class="feedback" id="auth-feedback" role="status" aria-live="polite"></div>
+      <div class="auth-dialog-actions">
+        <button type="button" class="btn btn-subtle" id="auth-logout" onclick="encerrarSessao()" hidden>Sair</button>
+        <button type="submit" class="btn btn-primary" id="auth-submit">Entrar</button>
+      </div>
+    </form>
+  </div>
+</dialog>
 
 <script>
 // ============================================================================
@@ -4282,18 +4323,114 @@ document.addEventListener(`DOMContentLoaded`, () => {
 // ============================================================================
 // ADAPTADOR DA API — O SERVIDOR É A FONTE ÚNICA DE VERDADE
 // ============================================================================
+const sessaoSIGAE = {
+  autenticado: false,
+  autenticacaoObrigatoria: false,
+  usuario: null,
+  csrfToken: null
+};
+
 async function requisitarAPI(caminho, opcoes = {}) {
+  const metodo = String(opcoes.method || `GET`).toUpperCase();
+  const headers = { ...(opcoes.headers || {}) };
+  if (opcoes.body && !headers[`Content-Type`]) headers[`Content-Type`] = `application/json`;
+  if (![`GET`, `HEAD`, `OPTIONS`].includes(metodo) && sessaoSIGAE.csrfToken) {
+    headers[`X-CSRF-Token`] = sessaoSIGAE.csrfToken;
+  }
   const resposta = await fetch(caminho, {
-    headers: { "Content-Type": "application/json", ...(opcoes.headers || {}) },
-    ...opcoes
+    ...opcoes,
+    headers,
+    credentials: `same-origin`
   });
   const conteudo = resposta.status === 204 ? null : await resposta.json();
   if (!resposta.ok) {
     const erro = new Error(conteudo?.error?.message || `Falha na comunicação (${resposta.status}).`);
     erro.fields = conteudo?.error?.fields || {};
+    erro.status = resposta.status;
+    if (resposta.status === 401) abrirDialogoAutenticacao();
     throw erro;
   }
   return conteudo?.data ?? conteudo;
+}
+
+function atualizarPerfilOperador() {
+  const nome = document.getElementById(`operator-name`);
+  const papel = document.getElementById(`operator-role`);
+  const avatar = document.querySelector(`#operator-profile .operator-avatar`);
+  const botaoSair = document.getElementById(`auth-logout`);
+  if (sessaoSIGAE.autenticado) {
+    const usuario = sessaoSIGAE.usuario?.username || `Operador`;
+    if (nome) nome.textContent = usuario;
+    if (papel) papel.textContent = sessaoSIGAE.usuario?.role || `autenticado`;
+    if (avatar) avatar.textContent = usuario.slice(0, 2).toUpperCase();
+    if (botaoSair) botaoSair.hidden = false;
+  } else {
+    if (nome) nome.textContent = `Operador`;
+    if (papel) papel.textContent = sessaoSIGAE.autenticacaoObrigatoria ? `Entrar no SIGAE` : `Modo demonstração`;
+    if (avatar) avatar.textContent = `OP`;
+    if (botaoSair) botaoSair.hidden = true;
+  }
+}
+
+async function inicializarSessao() {
+  try {
+    const sessao = await requisitarAPI(`/api/v1/auth/me`);
+    sessaoSIGAE.autenticado = Boolean(sessao.authenticated);
+    sessaoSIGAE.autenticacaoObrigatoria = Boolean(sessao.auth_required);
+    sessaoSIGAE.usuario = sessao.user || null;
+    sessaoSIGAE.csrfToken = sessao.csrf_token || null;
+  } catch (erro) {
+    sessaoSIGAE.autenticado = false;
+  }
+  atualizarPerfilOperador();
+}
+
+function abrirDialogoAutenticacao() {
+  const dialogo = document.getElementById(`auth-dialog`);
+  if (dialogo && !dialogo.open) {
+    dialogo.showModal();
+    setTimeout(() => document.getElementById(sessaoSIGAE.autenticado ? `auth-logout` : `auth-username`)?.focus(), 0);
+  }
+}
+
+function fecharDialogoAutenticacao() {
+  document.getElementById(`auth-dialog`)?.close();
+}
+
+async function autenticarOperador(evento) {
+  evento.preventDefault();
+  const botao = document.getElementById(`auth-submit`);
+  const username = document.getElementById(`auth-username`)?.value.trim();
+  const password = document.getElementById(`auth-password`)?.value;
+  if (botao) botao.disabled = true;
+  try {
+    const sessao = await requisitarAPI(`/api/v1/auth/login`, {
+      method: `POST`, body: JSON.stringify({ username, password })
+    });
+    sessaoSIGAE.autenticado = true;
+    sessaoSIGAE.usuario = sessao.user;
+    sessaoSIGAE.csrfToken = sessao.csrf_token;
+    document.getElementById(`auth-password`).value = ``;
+    atualizarPerfilOperador();
+    fecharDialogoAutenticacao();
+    await sincronizarComServidor();
+  } catch (erro) {
+    mostrarFeedback(`auth-feedback`, erro.message, `error`);
+  } finally {
+    if (botao) botao.disabled = false;
+  }
+}
+
+async function encerrarSessao() {
+  try {
+    await requisitarAPI(`/api/v1/auth/logout`, { method: `POST` });
+  } finally {
+    sessaoSIGAE.autenticado = false;
+    sessaoSIGAE.usuario = null;
+    sessaoSIGAE.csrfToken = null;
+    atualizarPerfilOperador();
+    fecharDialogoAutenticacao();
+  }
 }
 
 function numeroDoId(id) {
@@ -4526,7 +4663,10 @@ buscarGlobal = async function (termo) {
   }
 };
 
-document.addEventListener(`DOMContentLoaded`, sincronizarComServidor);
+document.addEventListener(`DOMContentLoaded`, async () => {
+  await inicializarSessao();
+  await sincronizarComServidor();
+});
 </script>
 </body>
 </html>
