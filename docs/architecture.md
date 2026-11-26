@@ -17,7 +17,7 @@ O projeto separa apresentação, contrato HTTP, regras de domínio, persistênci
 | `sigae/service.py` | invariantes do fluxo de atendimento e sincronização das estruturas |
 | `sigae/database.py` | esquema, transações SQLite, índices e auditoria |
 | `sigae/auth.py` | login, sessão, papéis e proteção CSRF |
-| estruturas na raiz | filas, busca e histórico implementados sem bibliotecas prontas |
+| estruturas na raiz | filas, índice de chegadas, busca e histórico implementados sem bibliotecas prontas |
 
 ## Fonte única de verdade
 
@@ -35,6 +35,16 @@ O sistema não avança mais um relógio artificial. Cadastros, filas, atendiment
 4. Um paciente só pode ser concluído quando está em atendimento.
 5. Cancelar um atendimento libera o médico associado.
 6. Toda mudança relevante gera um evento de auditoria.
+7. A Rubro-Negra mantém somente pacientes aguardando, indexados por chegada e ID.
+8. Toda saída da fila executa uma remoção balanceada na Rubro-Negra.
+
+## Estruturas acadêmicas
+
+- O Min-Heap de pacientes implementa sua própria subida, descida, extração, remoção e reclassificação.
+- O Min-Heap de médicos ordena por atendimentos concluídos, tempo ocioso e ID.
+- A Tabela Hash usa FNV-1a, encadeamento separado e redimensionamento próprio.
+- A Rubro-Negra implementa inserção e remoção com rotações e recolorações.
+- Dicionários são usados apenas como registros de domínio e índices auxiliares; não substituem nenhuma das estruturas exigidas.
 
 ## Segurança
 

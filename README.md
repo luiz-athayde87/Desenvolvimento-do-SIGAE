@@ -14,8 +14,8 @@
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.1-111827?logo=flask&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-persistente-0f80cc?logo=sqlite&logoColor=white)
-![Coverage](https://img.shields.io/badge/cobertura-88.41%25-16a34a)
-![Tests](https://img.shields.io/badge/testes-24%20aprovados-16a34a)
+![Coverage](https://img.shields.io/badge/cobertura-89.32%25-16a34a)
+![Tests](https://img.shields.io/badge/testes-31%20aprovados-16a34a)
 
 [Visão geral](#visão-geral) · [Funcionalidades](#funcionalidades) · [Estruturas de dados](#estruturas-de-dados) · [Como executar](#como-executar) · [Arquitetura](#arquitetura) · [Qualidade](#qualidade-e-segurança)
 
@@ -82,7 +82,7 @@ As estruturas são implementadas do zero em Python e reconstruídas a partir do 
 | **Min-Heap de médicos** | Profissional disponível com menor carga | Topo `O(1)`; inserção/remoção `O(log n)` | Árvore binária completa com carga e estado de cada médico |
 | **Tabela Hash** | Localização eficiente de registros por identificador | Busca média `O(1)` | Todos os buckets, incluindo colisões em cadeias encadeadas |
 | **Árvore AVL** | Índice balanceado do histórico | Busca/inserção `O(log n)` | Topologia real com altura e fator de balanceamento por nó |
-| **Árvore Rubro-Negra** | Índice cronológico do histórico | Busca/inserção `O(log n)` | Topologia real com ligações pai-filho e cores dos nós |
+| **Árvore Rubro-Negra** | Índice de pacientes aguardando por chegada e ID | Busca/inserção/remoção `O(log n)` | Topologia real com ligações pai-filho e cores dos nós |
 
 ```text
                     raiz
@@ -93,6 +93,25 @@ As estruturas são implementadas do zero em Python e reconstruídas a partir do 
 ```
 
 Além da topologia, a interface identifica raiz, níveis, filhos esquerdo e direito, índices internos, fatores de balanceamento e estados relevantes. Estruturas vazias apresentam orientação contextual em vez de dados artificiais.
+
+As estruturas obrigatórias não são substituídas por `dict`, `heapq`, `Map` ou bibliotecas de árvores. Os dicionários presentes nos registros representam apenas os campos das entidades; o mapa auxiliar `_indices` do heap de pacientes mantém a posição de cada ID para permitir reclassificação e remoção em `O(log n)`, sem realizar a ordenação da fila.
+
+## Conformidade acadêmica
+
+O fluxo operacional aciona as estruturas reais: cadastro insere nos índices, reclassificação reorganiza o Min-Heap, chamada extrai paciente e médico, saída da fila remove a chave da Rubro-Negra e conclusão devolve o médico atualizado ao heap de disponibilidade.
+
+Os cenários exigidos para teste e defesa estão automatizados, incluindo:
+
+- distribuição equilibrada entre três médicos e desempate determinístico;
+- impedimento de reutilização de médico ocupado;
+- ausência de médico disponível sem perda do paciente;
+- prioridade clínica, FIFO e desempate por ID;
+- reclassificação sem duplicidade;
+- colisões e redimensionamento da Tabela Hash;
+- inserções e remoções balanceadas na Rubro-Negra;
+- conclusão e cancelamento sem registros órfãos ou contagem incorreta.
+
+Consulte o [relatório de conformidade e roteiro de defesa](docs/avaliacao.md) para relacionar cada requisito do enunciado à implementação e à evidência automatizada.
 
 ## Como executar
 
@@ -206,7 +225,7 @@ python -m playwright install chromium
 python -m pytest e2e --browser chromium
 ```
 
-O projeto possui atualmente **24 testes automatizados aprovados** e **88,41% de cobertura**, acima da exigência mínima de 85%.
+O projeto possui atualmente **31 testes automatizados aprovados** e **89,32% de cobertura**, acima da exigência mínima de 85%.
 
 Os workflows do GitHub executam:
 

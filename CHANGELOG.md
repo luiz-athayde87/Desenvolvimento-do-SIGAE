@@ -8,6 +8,18 @@ Todas as mudanças relevantes do projeto são documentadas neste arquivo.
 
 - identificação visual P1–P5 no cadastro de pacientes, com cores clínicas distintas em cada opção;
 - atualização dinâmica do campo de prioridade conforme o nível de risco selecionado.
+- remoção balanceada completa na Árvore Rubro-Negra;
+- cenários automatizados da defesa acadêmica, incluindo desempates, indisponibilidade, colisões e consistência após cancelamentos;
+- relatório de conformidade com o enunciado e roteiro reproduzível de apresentação.
+
+### Alterado
+
+- Árvore Rubro-Negra passa a indexar pacientes aguardando pela chave composta `(horário de chegada, ID)`;
+- operações do domínio passam a executar explicitamente extrações, reclassificações e remoções nas estruturas acadêmicas.
+
+### Corrigido
+
+- verificações de qualidade Python voltam a executar sem violações do Ruff.
 
 ## [1.2.0] - 2026-11-25
 
