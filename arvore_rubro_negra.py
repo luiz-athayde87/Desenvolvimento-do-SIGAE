@@ -1,4 +1,4 @@
-"""Árvore Rubro-Negra para o histórico cronológico do SIGAE."""
+"""Árvore Rubro-Negra para o índice cronológico de pacientes aguardando."""
 
 from __future__ import annotations
 
@@ -85,12 +85,112 @@ class ArvoreRubroNegra:
         self._ajustar_insercao(novo)
 
     def buscar(self, chave: Any) -> Any | None:
+        no = self._buscar_no(chave)
+        return None if no == self.NIL else no.valor
+
+    def _buscar_no(self, chave: Any) -> NoRN:
         atual = self.raiz
-        while atual != self.NIL:
-            if chave == atual.chave:
-                return atual.valor
+        while atual != self.NIL and chave != atual.chave:
             atual = atual.esq if chave < atual.chave else atual.dir
-        return None
+        return atual
+
+    def _minimo(self, no: NoRN) -> NoRN:
+        while no.esq != self.NIL:
+            no = no.esq
+        return no
+
+    def _transplantar(self, antigo: NoRN, novo: NoRN) -> None:
+        if antigo.pai is None:
+            self.raiz = novo
+        elif antigo == antigo.pai.esq:
+            antigo.pai.esq = novo
+        else:
+            antigo.pai.dir = novo
+        novo.pai = antigo.pai
+
+    def remover(self, chave: Any) -> Any | None:
+        """Remove uma chave preservando todas as propriedades rubro-negras."""
+        alvo = self._buscar_no(chave)
+        if alvo == self.NIL:
+            return None
+
+        removido = alvo.valor
+        substituido = alvo
+        cor_original = substituido.cor
+        if alvo.esq == self.NIL:
+            ajuste = alvo.dir
+            self._transplantar(alvo, alvo.dir)
+        elif alvo.dir == self.NIL:
+            ajuste = alvo.esq
+            self._transplantar(alvo, alvo.esq)
+        else:
+            substituido = self._minimo(alvo.dir)
+            cor_original = substituido.cor
+            ajuste = substituido.dir
+            if substituido.pai == alvo:
+                ajuste.pai = substituido
+            else:
+                self._transplantar(substituido, substituido.dir)
+                substituido.dir = alvo.dir
+                substituido.dir.pai = substituido
+            self._transplantar(alvo, substituido)
+            substituido.esq = alvo.esq
+            substituido.esq.pai = substituido
+            substituido.cor = alvo.cor
+
+        if cor_original == PRETO:
+            self._ajustar_remocao(ajuste)
+        if self.raiz != self.NIL:
+            self.raiz.pai = None
+        else:
+            self.NIL.pai = None
+        return removido
+
+    def _ajustar_remocao(self, no: NoRN) -> None:
+        while no != self.raiz and no.cor == PRETO:
+            if no == no.pai.esq:
+                irmao = no.pai.dir
+                if irmao.cor == VERMELHO:
+                    irmao.cor = PRETO
+                    no.pai.cor = VERMELHO
+                    self._rotacionar_esquerda(no.pai)
+                    irmao = no.pai.dir
+                if irmao.esq.cor == PRETO and irmao.dir.cor == PRETO:
+                    irmao.cor = VERMELHO
+                    no = no.pai
+                else:
+                    if irmao.dir.cor == PRETO:
+                        irmao.esq.cor = PRETO
+                        irmao.cor = VERMELHO
+                        self._rotacionar_direita(irmao)
+                        irmao = no.pai.dir
+                    irmao.cor = no.pai.cor
+                    no.pai.cor = PRETO
+                    irmao.dir.cor = PRETO
+                    self._rotacionar_esquerda(no.pai)
+                    no = self.raiz
+            else:
+                irmao = no.pai.esq
+                if irmao.cor == VERMELHO:
+                    irmao.cor = PRETO
+                    no.pai.cor = VERMELHO
+                    self._rotacionar_direita(no.pai)
+                    irmao = no.pai.esq
+                if irmao.dir.cor == PRETO and irmao.esq.cor == PRETO:
+                    irmao.cor = VERMELHO
+                    no = no.pai
+                else:
+                    if irmao.esq.cor == PRETO:
+                        irmao.dir.cor = PRETO
+                        irmao.cor = VERMELHO
+                        self._rotacionar_esquerda(irmao)
+                        irmao = no.pai.esq
+                    irmao.cor = no.pai.cor
+                    no.pai.cor = PRETO
+                    irmao.esq.cor = PRETO
+                    self._rotacionar_direita(no.pai)
+                    no = self.raiz
+        no.cor = PRETO
 
     def _ajustar_insercao(self, k):
         while k.pai and k.pai.cor == VERMELHO:

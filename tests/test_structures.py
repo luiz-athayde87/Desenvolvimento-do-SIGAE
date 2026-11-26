@@ -45,6 +45,29 @@ def test_hash_atualiza_sem_duplicar_e_redimensiona() -> None:
     assert tabela.buscar("P3") is None
 
 
+def test_hash_encadeia_colisoes_reais_sem_perder_registros() -> None:
+    tabela = TabelaHash(5)
+    chaves_por_bucket: dict[int, list[str]] = {}
+    colisao: list[str] | None = None
+    for indice in range(100):
+        chave = f"COL-{indice}"
+        bucket = tabela._funcao_hash(chave)
+        chaves_por_bucket.setdefault(bucket, []).append(chave)
+        if len(chaves_por_bucket[bucket]) == 2:
+            colisao = chaves_por_bucket[bucket]
+            break
+
+    assert colisao is not None
+    primeira, segunda = colisao
+    tabela.inserir(primeira, {"id": primeira})
+    tabela.inserir(segunda, {"id": segunda})
+
+    bucket = tabela.tabela[tabela._funcao_hash(primeira)]
+    assert len(bucket) == 2
+    assert tabela.buscar(primeira) == {"id": primeira}
+    assert tabela.buscar(segunda) == {"id": segunda}
+
+
 def test_heap_pacientes_respeita_risco_fifo_e_id() -> None:
     heap = MinHeapPacientes()
     entradas = [
@@ -119,3 +142,22 @@ def test_rubro_negra_mantem_invariantes_em_sequencias_adversas() -> None:
         return 1 + contar_nos(no["esq"]) + contar_nos(no["dir"])
 
     assert contar_nos(exportada) == len(valores)
+
+
+def test_rubro_negra_remove_folhas_raiz_e_nos_internos_com_balanceamento() -> None:
+    arvore = ArvoreRubroNegra()
+    valores = list(range(120))
+    random.Random(17).shuffle(valores)
+    for valor in valores:
+        arvore.inserir((valor, f"P{valor:03d}"), {"id": f"P{valor:03d}"})
+
+    ordem_remocao = valores.copy()
+    random.Random(31).shuffle(ordem_remocao)
+    for valor in ordem_remocao:
+        chave = (valor, f"P{valor:03d}")
+        assert arvore.remover(chave) == {"id": f"P{valor:03d}"}
+        assert arvore.buscar(chave) is None
+        assert arvore.validar_propriedades()["ok"] is True
+
+    assert arvore.exportar_estrutura() is None
+    assert arvore.remover((999, "P999")) is None
