@@ -7,8 +7,9 @@ import sqlite3
 import threading
 import time
 from collections import defaultdict, deque
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 from flask import Blueprint, current_app, jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash

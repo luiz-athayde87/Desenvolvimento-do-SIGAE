@@ -32,9 +32,9 @@ const metadata = {
     legend: [["h", "Altura do nó"], ["FB", "Fator de balanceamento"], ["E / D", "Filho esquerdo / direito"]],
   },
   red_black: {
-    label: "Árvore Rubro-Negra",
+    label: "Rubro-Negra de chegadas",
     kind: "Árvore binária balanceada",
-    description: "Árvore de busca com a coloração real usada para preservar o balanceamento após inserções.",
+    description: "Índice cronológico dos pacientes em espera por horário de chegada e ID, com inserções e remoções balanceadas.",
     legend: [["●", "Nó preto"], ["●", "Nó vermelho"], ["E / D", "Filho esquerdo / direito"]],
   },
 };

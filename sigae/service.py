@@ -38,7 +38,7 @@ class SigaeService:
         self.hash = TabelaHash()
         self.patient_heap = MinHeapPacientes()
         self.doctor_heap = MinHeapMedicos()
-        self.history_rb = ArvoreRubroNegra()
+        self.arrival_rb = ArvoreRubroNegra()
         self.history_avl = ArvoreAVL()
         self.db.initialize()
         self._seed_if_empty()
@@ -154,7 +154,7 @@ class SigaeService:
         self.hash = TabelaHash()
         self.patient_heap = MinHeapPacientes()
         self.doctor_heap = MinHeapMedicos()
-        self.history_rb = ArvoreRubroNegra()
+        self.arrival_rb = ArvoreRubroNegra()
         self.history_avl = ArvoreAVL()
         current_time = now_epoch()
         with self.db.connection() as connection:
@@ -163,6 +163,9 @@ class SigaeService:
                 self.hash.inserir(patient["id"], patient)
                 if patient["situacao"] == "Aguardando":
                     self.patient_heap.inserir(patient)
+                    self.arrival_rb.inserir(
+                        (patient["horario_chegada"], patient["id"]), patient
+                    )
             for row in connection.execute("SELECT * FROM doctors ORDER BY id"):
                 doctor = self._doctor_public(row)
                 self.hash.inserir(doctor["id"], doctor)
@@ -170,7 +173,6 @@ class SigaeService:
                     self.doctor_heap.inserir(doctor)
             for row in connection.execute("SELECT * FROM attendances ORDER BY id"):
                 record = dict(row)
-                self.history_rb.inserir((row["started_seconds"], row["id"]), record)
                 self.history_avl.inserir_no(row["id"], record)
 
     def _next_id(self, connection: sqlite3.Connection, key: str, prefix: str, width: int) -> str:
@@ -328,6 +330,9 @@ class SigaeService:
                     str(cursor.lastrowid),
                     {"patient_id": patient["id"], "doctor_id": doctor["id"]},
                 )
+            self.patient_heap.extrair_proximo()
+            self.doctor_heap.extrair_proximo()
+            self.arrival_rb.remover((patient["horario_chegada"], patient["id"]))
             self._rebuild_indexes()
             return {
                 "attendance_id": cursor.lastrowid,
@@ -358,6 +363,7 @@ class SigaeService:
                 connection, row["doctor_id"], current_time, increment_completed=True
             )
             self.db.audit(connection, "attendance.completed", "patient", identifier, {})
+        self.doctor_heap.inserir(self.get_doctor(row["doctor_id"]))
         self._rebuild_indexes()
         return self.get_patient(identifier)
 
@@ -385,6 +391,11 @@ class SigaeService:
                 )
                 self._set_doctor_available(connection, row["doctor_id"], current_time)
             self.db.audit(connection, "patient.cancelled", "patient", identifier, {})
+        if row["status"] == "Aguardando":
+            self.patient_heap.remover(identifier)
+            self.arrival_rb.remover((int(row["arrival_seconds"]), identifier))
+        else:
+            self.doctor_heap.inserir(self.get_doctor(row["doctor_id"]))
         self._rebuild_indexes()
         return self.get_patient(identifier)
 
@@ -407,6 +418,7 @@ class SigaeService:
                 identifier,
                 {"from": row["priority"], "to": priority},
             )
+        self.patient_heap.atualizar_prioridade(identifier, priority)
         self._rebuild_indexes()
         return self.get_patient(identifier)
 
@@ -596,7 +608,7 @@ class SigaeService:
                 "patient_heap": self.patient_heap.exportar_array(),
                 "doctor_heap": self.doctor_heap.exportar_array(),
                 "hash": self.hash.exportar_buckets(),
-                "red_black": self.history_rb.exportar_estrutura(),
+                "red_black": self.arrival_rb.exportar_estrutura(),
                 "avl": self.history_avl.exportar_estrutura(),
             },
         }

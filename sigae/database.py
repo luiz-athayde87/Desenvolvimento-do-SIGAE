@@ -133,7 +133,16 @@ class Database:
 
     @staticmethod
     def _column_names(connection: sqlite3.Connection, table: str) -> set[str]:
-        if table not in {"doctors", "patients", "attendances", "audit_log", "users", "metadata", "schema_migrations"}:
+        valid_tables = {
+            "doctors",
+            "patients",
+            "attendances",
+            "audit_log",
+            "users",
+            "metadata",
+            "schema_migrations",
+        }
+        if table not in valid_tables:
             raise ValueError(f"Tabela inválida: {table}")
         return {str(row["name"]) for row in connection.execute(f"PRAGMA table_info({table})")}
 
